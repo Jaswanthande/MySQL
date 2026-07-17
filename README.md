@@ -25,3 +25,9 @@ Learned the core concepts of Structured Query Language (SQL), including SQL Iden
 MySQL Hands-on: Table Management & ALTER Operations
 
 Focused on practical implementation using MySQL by creating, deleting, and selecting databases and tables. Learned to inspect table structures using the DESC command and performed various ALTER TABLE operations such as adding, modifying, renaming, and dropping columns, as well as renaming tables. Also gained hands-on experience with commonly used MySQL data types including CHAR, VARCHAR, INT, DATE, DECIMAL, ENUM, SET, and TINYTEXT, strengthening my understanding of database schema design.
+
+**🌟 Day 5 MySQL Hands-on: DML Operations (INSERT, UPDATE & DELETE)**
+
+Today, I explored MySQL's Data Manipulation Language (DML) commands through practical exercises. I learned different ways to insert records into tables using `INSERT INTO` and `INSERT ... SET`, update existing records with the `UPDATE` statement, and remove records safely using the `DELETE` command with conditions. These hands-on exercises helped me understand how to efficiently manage and modify data in a database while strengthening my SQL fundamentals.
+
+
