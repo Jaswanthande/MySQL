@@ -1,0 +1,243 @@
+DAY 5
+
+DML
+
+INSERT 	INSERT IS A DML (DATA MANIPULATION LANGUAGE) COMMAND USED TO ADD NEW RECORDS (ROWS) INTO A DATABASE TABLE.
+
+SYNTAX: INSERT TABLE_NAME(COLUMN_NAME)VALUES(COLUMN_VALUES):
+
+mysql> USE PFS4;
+Database changed
+mysql> SHOW DATABASES;
++--------------------+
+| Database           |
++--------------------+
+| da4                |
+| information_schema |
+| mysql              |
+| performance_schema |
+| pfs4               |
+| sys                |
++--------------------+
+6 rows in set (0.01 sec)
+
+mysql> SHOW TABLES;
++----------------+
+| Tables_in_pfs4 |
++----------------+
+| company_staff  |
+| employees      |
++----------------+
+2 rows in set (0.01 sec)
+
+mysql> DESC EMPLOYEES;
++-----------+--------------+------+-----+---------+-------+
+| Field     | Type         | Null | Key | Default | Extra |
++-----------+--------------+------+-----+---------+-------+
+| EMPID     | char(5)      | YES  |     | NULL    |       |
+| FIRSTNAME | varchar(150) | YES  |     | NULL    |       |
+| LASTNAME  | varchar(150) | YES  |     | NULL    |       |
+| AGE       | int          | YES  |     | NULL    |       |
+| DOJ       | date         | YES  |     | NULL    |       |
+| ADDRESS   | tinytext     | YES  |     | NULL    |       |
+| DEPT      | varchar(50)  | YES  |     | NULL    |       |
++-----------+--------------+------+-----+---------+-------+
+7 rows in set (0.00 sec)
+
+mysql> INSERT INTO EMPLOYEES(EMPID,FIRSTNAME,LASTNAME,AGE,DOJ,ADDRESS,DEPT) VALUES
+    -> ('E0001','JASWANTH','ANDE',21,'2026-06-23','VSKP','PFS'),
+    -> ('E0002','YASWANTH','PILLA',21,'2026-06-23','GANDHINAGAR','SAP'),
+    -> ('E0003','JANU','DUNGALA',22,'2026-01-23','CHENNAI','TRANIEE');
+Query OK, 3 rows affected (0.02 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM EMPLOYEES;
++-------+-----------+----------+------+------------+-------------+---------+
+| EMPID | FIRSTNAME | LASTNAME | AGE  | DOJ        | ADDRESS     | DEPT    |
++-------+-----------+----------+------+------------+-------------+---------+
+| E0001 | JASWANTH  | ANDE     |   21 | 2026-06-23 | VSKP        | PFS     |
+| E0002 | YASWANTH  | PILLA    |   21 | 2026-06-23 | GANDHINAGAR | SAP     |
+| E0003 | JANU      | DUNGALA  |   22 | 2026-01-23 | CHENNAI     | TRANIEE |
++-------+-----------+----------+------+------------+-------------+---------+
+3 rows in set (0.00 sec)
+
+mysql> INSERT INTO EMPLOYEES(FIRSTNAME,LASTNAME,ADDRESS,DEPT,AGE,EMPID,DOJ) VALUES
+    -> ('CHARAN','BERA','VSKP','PFS',23,'E0004','2026-05-23');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> SELECT * FROM EMPLOYEES;
++-------+-----------+----------+------+------------+-------------+---------+
+| EMPID | FIRSTNAME | LASTNAME | AGE  | DOJ        | ADDRESS     | DEPT    |
++-------+-----------+----------+------+------------+-------------+---------+
+| E0001 | JASWANTH  | ANDE     |   21 | 2026-06-23 | VSKP        | PFS     |
+| E0002 | YASWANTH  | PILLA    |   21 | 2026-06-23 | GANDHINAGAR | SAP     |
+| E0003 | JANU      | DUNGALA  |   22 | 2026-01-23 | CHENNAI     | TRANIEE |
+| E0004 | CHARAN    | BERA     |   23 | 2026-05-23 | VSKP        | PFS     |
++-------+-----------+----------+------+------------+-------------+---------+
+4 rows in set (0.00 sec)
+
+mysql> INSERT INTO EMPLOYEES(EMPID,FIRSTNAME,LASTNAME,AGE,DOJ,ADDRESS,DEPT) VALUES
+    -> ('E0005','BHARATH','REDDI',23,'2026-06-23','VSKP','BBA'),
+    -> ('E0006','HEMANTH','RAVADA',22,'2026-07-23','HYD','PYTHON'),
+    -> ('E0007','SATHVIK','GRANDHI',21,'2026-07-23','HYD','JAVA');
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM EMPLOYEES;
++-------+-----------+----------+------+------------+-------------+---------+
+| EMPID | FIRSTNAME | LASTNAME | AGE  | DOJ        | ADDRESS     | DEPT    |
++-------+-----------+----------+------+------------+-------------+---------+
+| E0001 | JASWANTH  | ANDE     |   21 | 2026-06-23 | VSKP        | PFS     |
+| E0002 | YASWANTH  | PILLA    |   21 | 2026-06-23 | GANDHINAGAR | SAP     |
+| E0003 | JANU      | DUNGALA  |   22 | 2026-01-23 | CHENNAI     | TRANIEE |
+| E0004 | CHARAN    | BERA     |   23 | 2026-05-23 | VSKP        | PFS     |
+| E0005 | BHARATH   | REDDI    |   23 | 2026-06-23 | VSKP        | BBA     |
+| E0006 | HEMANTH   | RAVADA   |   22 | 2026-07-23 | HYD         | PYTHON  |
+| E0007 | SATHVIK   | GRANDHI  |   21 | 2026-07-23 | HYD         | JAVA    |
++-------+-----------+----------+------+------------+-------------+---------+
+7 rows in set (0.00 sec)
+
+mysql> INSERT INTO EMPLOYEES SET
+    -> EMPID = 'E0010',
+    -> FIRSTNAME = 'RAMS',
+    -> LASTNAME = 'RAO',
+    -> AGE = 22,
+    -> DOJ ='2026-01-22',
+    -> ADDRESS='BRC',
+    -> DEPT='VLAC';
+Query OK, 1 row affected (0.01 sec)
+
+mysql> SELECT * FROM EMPLOYEES;
++-------+-----------+----------+------+------------+-------------+---------+
+| EMPID | FIRSTNAME | LASTNAME | AGE  | DOJ        | ADDRESS     | DEPT    |
++-------+-----------+----------+------+------------+-------------+---------+
+| E0001 | JASWANTH  | ANDE     |   21 | 2026-06-23 | VSKP        | PFS     |
+| E0002 | YASWANTH  | PILLA    |   21 | 2026-06-23 | GANDHINAGAR | SAP     |
+| E0003 | JANU      | DUNGALA  |   22 | 2026-01-23 | CHENNAI     | TRANIEE |
+| E0004 | CHARAN    | BERA     |   23 | 2026-05-23 | VSKP        | PFS     |
+| E0005 | BHARATH   | REDDI    |   23 | 2026-06-23 | VSKP        | BBA     |
+| E0006 | HEMANTH   | RAVADA   |   22 | 2026-07-23 | HYD         | PYTHON  |
+| E0007 | SATHVIK   | GRANDHI  |   21 | 2026-07-23 | HYD         | JAVA    |
+| E0008 | PAVAN     | NULL     | NULL | 2026-08-12 | NULL        | HR      |
+| E0009 | UDAY      | NULL     | NULL | 2026-08-12 | NULL        | INTERN  |
+| E0008 | GANESH    | NULL     | NULL | 2026-09-12 | NULL        | JAVA    |
+| E0010 | RAMS      | RAO      |   22 | 2026-01-22 | BRC         | VLAC    |
++-------+-----------+----------+------+------------+-------------+---------+
+11 rows in set (0.00 sec)
+
+UPDATE
+SYNTAX UPDATE TABLE_NAME SET COLUMN_NAME=UPDATE_VALUE WHERE SOME CONDITION;
+
+mysql> UPDATE EMPLOYEES SET EMPID ='E0010' WHERE FIRSTNAME ='GANESH';
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> SELECT * FROM EMPLOYEES;
++-------+-----------+----------+------+------------+-------------+---------+
+| EMPID | FIRSTNAME | LASTNAME | AGE  | DOJ        | ADDRESS     | DEPT    |
++-------+-----------+----------+------+------------+-------------+---------+
+| E0001 | JASWANTH  | ANDE     |   21 | 2026-06-23 | VSKP        | PFS     |
+| E0002 | YASWANTH  | PILLA    |   21 | 2026-06-23 | GANDHINAGAR | SAP     |
+| E0003 | JANU      | DUNGALA  |   22 | 2026-01-23 | CHENNAI     | TRANIEE |
+| E0004 | CHARAN    | BERA     |   23 | 2026-05-23 | VSKP        | PFS     |
+| E0005 | BHARATH   | REDDI    |   23 | 2026-06-23 | VSKP        | BBA     |
+| E0006 | HEMANTH   | RAVADA   |   22 | 2026-07-23 | HYD         | PYTHON  |
+| E0007 | SATHVIK   | GRANDHI  |   21 | 2026-07-23 | HYD         | JAVA    |
+| E0008 | PAVAN     | NULL     | NULL | 2026-08-12 | NULL        | HR      |
+| E0009 | UDAY      | NULL     | NULL | 2026-08-12 | NULL        | INTERN  |
+| E0010 | GANESH    | NULL     | NULL | 2026-09-12 | NULL        | JAVA    |
+| E0010 | RAMS      | RAO      |   22 | 2026-01-22 | BRC         | VLAC    |
++-------+-----------+----------+------+------------+-------------+---------+
+11 rows in set (0.00 sec)
+
+mysql> UPDATE EMPLOYEES SET EMPID ='E0011' WHERE FIRSTNAME ='RAMS';
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> SELECT * FROM EMPLOYEES;
++-------+-----------+----------+------+------------+-------------+---------+
+| EMPID | FIRSTNAME | LASTNAME | AGE  | DOJ        | ADDRESS     | DEPT    |
++-------+-----------+----------+------+------------+-------------+---------+
+| E0001 | JASWANTH  | ANDE     |   21 | 2026-06-23 | VSKP        | PFS     |
+| E0002 | YASWANTH  | PILLA    |   21 | 2026-06-23 | GANDHINAGAR | SAP     |
+| E0003 | JANU      | DUNGALA  |   22 | 2026-01-23 | CHENNAI     | TRANIEE |
+| E0004 | CHARAN    | BERA     |   23 | 2026-05-23 | VSKP        | PFS     |
+| E0005 | BHARATH   | REDDI    |   23 | 2026-06-23 | VSKP        | BBA     |
+| E0006 | HEMANTH   | RAVADA   |   22 | 2026-07-23 | HYD         | PYTHON  |
+| E0007 | SATHVIK   | GRANDHI  |   21 | 2026-07-23 | HYD         | JAVA    |
+| E0008 | PAVAN     | NULL     | NULL | 2026-08-12 | NULL        | HR      |
+| E0009 | UDAY      | NULL     | NULL | 2026-08-12 | NULL        | INTERN  |
+| E0010 | GANESH    | NULL     | NULL | 2026-09-12 | NULL        | JAVA    |
+| E0011 | RAMS      | RAO      |   22 | 2026-01-22 | BRC         | VLAC    |
++-------+-----------+----------+------+------------+-------------+---------+
+11 rows in set (0.00 sec)
+
+mysql> UPDATE EMPLOYEES SET FIRSTNAME ='RAMA' WHERE LASTNAME ='RAO';
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> SELECT * FROM EMPLOYEES WHERE EMPID='E0011';
++-------+-----------+----------+------+------------+---------+------+
+| EMPID | FIRSTNAME | LASTNAME | AGE  | DOJ        | ADDRESS | DEPT |
++-------+-----------+----------+------+------------+---------+------+
+| E0011 | RAMA      | RAO      |   22 | 2026-01-22 | BRC     | VLAC |
++-------+-----------+----------+------+------------+---------+------+
+1 row in set (0.00 sec)
+
+mysql> UPDATE EMPLOYEES SET LASTNAME ='MANIKANTA',AGE=22,ADDRESS='VJY' WHERE EMPID ='E0010';
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> SELECT * FROM EMPLOYEES WHERE EMPID='E0010';
++-------+-----------+-----------+------+------------+---------+------+
+| EMPID | FIRSTNAME | LASTNAME  | AGE  | DOJ        | ADDRESS | DEPT |
++-------+-----------+-----------+------+------------+---------+------+
+| E0010 | GANESH    | MANIKANTA |   22 | 2026-09-12 | VJY     | JAVA |
++-------+-----------+-----------+------+------------+---------+------+
+1 row in set (0.00 sec)
+
+mysql> UPDATE EMPLOYEES SET LASTNAME ='SAI',AGE=21,ADDRESS='VJY' WHERE EMPID ='E0008';
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> SELECT * FROM EMPLOYEES WHERE EMPID='E0009';
++-------+-----------+----------+------+------------+---------+--------+
+| EMPID | FIRSTNAME | LASTNAME | AGE  | DOJ        | ADDRESS | DEPT   |
++-------+-----------+----------+------+------------+---------+--------+
+| E0009 | UDAY      | KIRAN    |   22 | 2026-08-12 | VSKP    | INTERN |
++-------+-----------+----------+------+------------+---------+--------+
+1 row in set (0.00 sec)
+
+mysql> SELECT * FROM EMPLOYEES WHERE EMPID='E0008';
++-------+-----------+----------+------+------------+---------+------+
+| EMPID | FIRSTNAME | LASTNAME | AGE  | DOJ        | ADDRESS | DEPT |
++-------+-----------+----------+------+------------+---------+------+
+| E0008 | PAVAN     | SAI      |   21 | 2026-08-12 | VJY     | HR   |
++-------+-----------+----------+------+------------+---------+------+
+1 row in set (0.00 sec)
+
+DELETE
+
+SYNTAX  DELETE FROM TABLE_NAME WHERE CONDITION;
+
+mysql> DELETE FROM EMPLOYEES WHERE EMPID = 'E0011';
+Query OK, 1 row affected (0.01 sec)
+
+mysql> SELECT * FROM EMPLOYEES;
++-------+-----------+-----------+------+------------+-------------+---------+
+| EMPID | FIRSTNAME | LASTNAME  | AGE  | DOJ        | ADDRESS     | DEPT    |
++-------+-----------+-----------+------+------------+-------------+---------+
+| E0001 | JASWANTH  | ANDE      |   21 | 2026-06-23 | VSKP        | PFS     |
+| E0002 | YASWANTH  | PILLA     |   21 | 2026-06-23 | GANDHINAGAR | SAP     |
+| E0003 | JANU      | DUNGALA   |   22 | 2026-01-23 | CHENNAI     | TRANIEE |
+| E0004 | CHARAN    | BERA      |   23 | 2026-05-23 | VSKP        | PFS     |
+| E0005 | BHARATH   | REDDI     |   23 | 2026-06-23 | VSKP        | BBA     |
+| E0006 | HEMANTH   | RAVADA    |   22 | 2026-07-23 | HYD         | PYTHON  |
+| E0007 | SATHVIK   | GRANDHI   |   21 | 2026-07-23 | HYD         | JAVA    |
+| E0008 | PAVAN     | SAI       |   21 | 2026-08-12 | VJY         | HR      |
+| E0009 | UDAY      | KIRAN     |   22 | 2026-08-12 | VSKP        | INTERN  |
+| E0010 | GANESH    | MANIKANTA |   22 | 2026-09-12 | VJY         | JAVA    |
++-------+-----------+-----------+------+------------+-------------+---------+
+10 rows in set (0.00 sec)
+
+
