@@ -1,0 +1,279 @@
+DAY 6
+
+mysql> USE PFS4;
+Database changed
+mysql> CREATE TABLE EMPLOYEES(
+    -> EMPID INT AUTO_INCREMENT PRIMARY KEY,       #AUTO_INCREMENT PRIMARY KEY USE TO AUTO UPGRADE THE EMPID
+    -> NAME VARCHAR(20),
+    -> DEPARTMENT VARCHAR(30)
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> DESC EMPLOYEES;
++------------+-------------+------+-----+---------+----------------+
+| Field      | Type        | Null | Key | Default | Extra          |
++------------+-------------+------+-----+---------+----------------+
+| EMPID      | int         | NO   | PRI | NULL    | auto_increment |
+| NAME       | varchar(20) | YES  |     | NULL    |                |
+| DEPARTMENT | varchar(30) | YES  |     | NULL    |                |
++------------+-------------+------+-----+---------+----------------+
+3 rows in set (0.00 sec)
+
+mysql> INSERT INTO EMPLOYEES (NAME,DEPARTMENT) VALUES
+    -> ('JASSU','PFS'),
+    -> ('YASHU','SAP'),
+    -> ('JANU','TRAINEE');
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM EMPLOYEES;
++-------+-------+------------+
+| EMPID | NAME  | DEPARTMENT |
++-------+-------+------------+
+|     1 | JASSU | PFS        |
+|     2 | YASHU | SAP        |
+|     3 | JANU  | TRAINEE    |
++-------+-------+------------+
+3 rows in set (0.00 sec)
+
+
+# WE CAN CREATE A TABLE AS A BACKUP FOR THE TABLE WHICH WAS ALREADY PRESSENT IN THE DATABSE
+
+mysql> CREATE TABLE BACKUPEMPLOYEED AS SELECT * FROM EMPLOYEES;
+Query OK, 3 rows affected (0.03 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> SHOW TABLES;
++-----------------+
+| Tables_in_pfs4  |
++-----------------+
+| backupemployeed |
+| company_staff   |
+| employees       |
++-----------------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT * FROM BACKUPEMPLOYEED;
++-------+-------+------------+
+| EMPID | NAME  | DEPARTMENT |
++-------+-------+------------+
+|     1 | JASSU | PFS        |
+|     2 | YASHU | SAP        |
+|     3 | JANU  | TRAINEE    |
++-------+-------+------------+
+3 rows in set (0.00 sec)
+
+
+mysql> CREATE TABLE PRODUCTS(
+    -> PRODUCTID INT AUTO_INCREMENT PRIMARY KEY,
+    -> PRODUCTNAME VARCHAR(20),
+    -> PRICE DECIMAL(10,2),
+    -> QUANTITY INT,
+    -> TOTALAMOUNT DECIMAL(10,2) GENERATED ALWAYS AS(PRICE * QUANTITY)STORED
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> DESC PRODUCTS;
++-------------+---------------+------+-----+---------+------------------+
+| Field       | Type          | Null | Key | Default | Extra            |
++-------------+---------------+------+-----+---------+------------------+
+| PRODUCTID   | int           | NO   | PRI | NULL    | auto_increment   |
+| PRODUCTNAME | varchar(20)   | YES  |     | NULL    |                  |
+| PRICE       | decimal(10,2) | YES  |     | NULL    |                  |
+| QUANTITY    | int           | YES  |     | NULL    |                  |
+| TOTALAMOUNT | decimal(10,2) | YES  |     | NULL    | STORED GENERATED |
++-------------+---------------+------+-----+---------+------------------+
+5 rows in set (0.00 sec)
+
+mysql> INSERT INTO PRODUCTS (PRODUCTNAME,PRICE,QUANTITY) VALUES
+    -> ('JASWANTH',19999.99,2),
+    -> ('YASWANTH',3989.89,3),
+    -> ('JAHNAVI',1977.65,5);
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM PRODUCTS;
++-----------+-------------+----------+----------+-------------+
+| PRODUCTID | PRODUCTNAME | PRICE    | QUANTITY | TOTALAMOUNT |
++-----------+-------------+----------+----------+-------------+
+|         1 | JASWANTH    | 19999.99 |        2 |    39999.98 |
+|         2 | YASWANTH    |  3989.89 |        3 |    11969.67 |
+|         3 | JAHNAVI     |  1977.65 |        5 |     9888.25 |
++-----------+-------------+----------+----------+-------------+
+3 rows in set (0.00 sec)
+
+
+mysql> UPDATE PRODUCTS SET PRODUCTNAME='OPPO' WHERE PRODUCTID =3;
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> UPDATE PRODUCTS SET PRODUCTNAME='VIVO' WHERE PRODUCTID =2;
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> UPDATE PRODUCTS SET PRODUCTNAME='IPHONE' WHERE PRODUCTID =1;
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> SELECT * FROM PRODUCTS;
++-----------+-------------+----------+----------+-------------+
+| PRODUCTID | PRODUCTNAME | PRICE    | QUANTITY | TOTALAMOUNT |
++-----------+-------------+----------+----------+-------------+
+|         1 | IPHONE      | 19999.99 |        2 |    39999.98 |
+|         2 | VIVO        |  3989.89 |        3 |    11969.67 |
+|         3 | OPPO        |  1977.65 |        5 |     9888.25 |
++-----------+-------------+----------+----------+-------------+
+3 rows in set (0.00 sec)
+
+mysql> DELETE FROM PRODUCTS WHERE PRODUCTID = 3;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> SELECT * FROM PRODUCTS;
++-----------+-------------+----------+----------+-------------+
+| PRODUCTID | PRODUCTNAME | PRICE    | QUANTITY | TOTALAMOUNT |
++-----------+-------------+----------+----------+-------------+
+|         1 | IPHONE      | 19999.99 |        2 |    39999.98 |
+|         2 | VIVO        |  3989.89 |        3 |    11969.67 |
++-----------+-------------+----------+----------+-------------+
+2 rows in set (0.00 sec)
+
+mysql> INSERT INTO PRODUCTS (PRODUCTNAME,PRICE,QUANTITY) VALUES
+    -> ('REDMI',4999.99,2);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> SELECT * FROM PRODUCTS;
++-----------+-------------+----------+----------+-------------+
+| PRODUCTID | PRODUCTNAME | PRICE    | QUANTITY | TOTALAMOUNT |
++-----------+-------------+----------+----------+-------------+
+|         1 | IPHONE      | 19999.99 |        2 |    39999.98 |
+|         2 | VIVO        |  3989.89 |        3 |    11969.67 |
+|         4 | REDMI       |  4999.99 |        2 |     9999.98 |
++-----------+-------------+----------+----------+-------------+
+3 rows in set (0.00 sec)
+
+
+WHEN A ROW IS DELETED FROM A TABLE, THE AUTO_INCREMENT PRIMARY KEY DOES NOT REUSE THE DELETED ID.
+
+IF THE DELETED ROW HAD PRODUCT_ID = 3, THE NEXT INSERTED ROW WILL NOT GET PRODUCT_ID = 3. INSTEAD, THE AUTO_INCREMENT VALUE CONTINUES WITH THE NEXT AVAILABLE NUMBER.
+
+EXAMPLE:
+EXISTING IDS: 1, 2, 3
+DELETE PRODUCT_ID = 3
+INSERT A NEW ROW
+NEW PRODUCT_ID = 4 (NOT 3)
+
+
+
+DCL
+
+CREATE  
+CREATE USER USER_NAME IDENTIFIED BY 'PASSWORD'
+
+GRANT
+GRANT PRIVILAGE ON TABLE_NAME TO "USERNAME"
+
+REVOKE
+REVOKE PRIVILAGE ON TABLE_NAME FROM "USERNAME"
+
+mysql> CREATE TABLE STUDENTS(
+    -> STUDENTID INT AUTO_INCREMENT PRIMARY KEY,
+    -> SNAME VARCHAR(20),
+    -> SMOBILE VARCHAR(10),
+    -> SMARKS INT(3)
+    -> );
+Query OK, 0 rows affected, 1 warning (0.03 sec)
+
+mysql> INSERT INTO STUDENTS (SNAME,SMOBILE,SMARKS) VALUES
+    -> ('JASWANTH','9898978787',89),
+    -> ('YASWANTH','9879876767',90),
+    -> ('JAHNAVI','7897899898',98),
+    -> ('CHARAN','6306306776',88),
+    -> ('PAVAN','6306306886',85);
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM STUDENTS;
++-----------+----------+------------+--------+
+| STUDENTID | SNAME    | SMOBILE    | SMARKS |
++-----------+----------+------------+--------+
+|         1 | JASWANTH | 9898978787 |     89 |
+|         2 | YASWANTH | 9879876767 |     90 |
+|         3 | JAHNAVI  | 7897899898 |     98 |
+|         4 | CHARAN   | 6306306776 |     88 |
+|         5 | PAVAN    | 6306306886 |     85 |
++-----------+----------+------------+--------+
+5 rows in set (0.00 sec)
+
+mysql> CREATE USER JASSU IDENTIFIED BY 'JASSU123';
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> CREATE USER YASHU IDENTIFIED BY 'YASHU123';
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> CREATE USER JANU IDENTIFIED BY 'JANU123';
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> GRANT SELECT,INSERT ON STUDENTS TO JASSU
+    -> ;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> GRANT SELECT,UPDATE ON STUDENTS TO YASHU;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> GRANT SELECT,DELETE ON STUDENTS TO JANU;
+Query OK, 0 rows affected (0.01 sec)
+
+C:\Program Files\MySQL\MySQL Server 8.0\bin>MySQL -u JASSU -p
+Enter password: ********
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 13
+Server version: 8.0.46 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2026, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> USE PFS4
+Database changed
+mysql> SELECT * FROM STUDENTS;
++-----------+----------+------------+--------+
+| STUDENTID | SNAME    | SMOBILE    | SMARKS |
++-----------+----------+------------+--------+
+|         1 | JASWANTH | 9898978787 |     89 |
+|         2 | YASWANTH | 9879876767 |     90 |
+|         3 | JAHNAVI  | 7897899898 |     98 |
+|         4 | CHARAN   | 6306306776 |     88 |
+|         5 | PAVAN    | 6306306886 |     85 |
++-----------+----------+------------+--------+
+5 rows in set (0.00 sec)
+
+mysql> INSERT INTO STUDENTS VALUES(6,'SATHVIK','7878923432',78);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> SELECT * FROM STUDENTS;
++-----------+----------+------------+--------+
+| STUDENTID | SNAME    | SMOBILE    | SMARKS |
++-----------+----------+------------+--------+
+|         1 | JASWANTH | 9898978787 |     89 |
+|         2 | YASWANTH | 9879876767 |     90 |
+|         3 | JAHNAVI  | 7897899898 |     98 |
+|         4 | CHARAN   | 6306306776 |     88 |
+|         5 | PAVAN    | 6306306886 |     85 |
+|         6 | SATHVIK  | 7878923432 |     78 |
++-----------+----------+------------+--------+
+6 rows in set (0.00 sec)
+
+mysql> REVOKE INSERT ON STUDENTS FROM JASSU;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> REVOKE DELETE ON STUDENTS FROM JANU;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> REVOKE UPDATE ON STUDENTS FROM YASHU;
+Query OK, 0 rows affected (0.01 sec)
+
+
