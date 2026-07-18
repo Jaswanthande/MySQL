@@ -26,8 +26,11 @@ MySQL Hands-on: Table Management & ALTER Operations
 
 Focused on practical implementation using MySQL by creating, deleting, and selecting databases and tables. Learned to inspect table structures using the DESC command and performed various ALTER TABLE operations such as adding, modifying, renaming, and dropping columns, as well as renaming tables. Also gained hands-on experience with commonly used MySQL data types including CHAR, VARCHAR, INT, DATE, DECIMAL, ENUM, SET, and TINYTEXT, strengthening my understanding of database schema design.
 
-**🌟 Day 5 MySQL Hands-on: DML Operations (INSERT, UPDATE & DELETE)**
+🌟 Day 5 MySQL Hands-on: DML Operations (INSERT, UPDATE & DELETE)**
 
 Today, I explored MySQL's Data Manipulation Language (DML) commands through practical exercises. I learned different ways to insert records into tables using `INSERT INTO` and `INSERT ... SET`, update existing records with the `UPDATE` statement, and remove records safely using the `DELETE` command with conditions. These hands-on exercises helped me understand how to efficiently manage and modify data in a database while strengthening my SQL fundamentals.
 
+🌟 Day 6 MySQL Hands-on: AUTO_INCREMENT, Generated Columns, Backup Tables & DCL
+
+Today, I expanded my MySQL knowledge by working with advanced database concepts through hands-on practice. I learned how AUTO_INCREMENT works with primary keys, created backup tables using CREATE TABLE AS SELECT, and explored generated (stored) columns to automatically calculate values. I also practiced UPDATE and DELETE operations while understanding how AUTO_INCREMENT continues even after deleting records. Finally, I explored Data Control Language (DCL) by creating users and managing database permissions using GRANT and REVOKE, strengthening my understanding of database security and access control.
 
