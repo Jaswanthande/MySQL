@@ -34,3 +34,7 @@ Today, I explored MySQL's Data Manipulation Language (DML) commands through prac
 
 Today, I expanded my MySQL knowledge by working with advanced database concepts through hands-on practice. I learned how AUTO_INCREMENT works with primary keys, created backup tables using CREATE TABLE AS SELECT, and explored generated (stored) columns to automatically calculate values. I also practiced UPDATE and DELETE operations while understanding how AUTO_INCREMENT continues even after deleting records. Finally, I explored Data Control Language (DCL) by creating users and managing database permissions using GRANT and REVOKE, strengthening my understanding of database security and access control.
 
+🌟 Day 7 – Transactions, ACID Properties & Locking in MySQL
+
+Continued my SQL learning journey by diving into Transaction Control Language (TCL) and understanding how databases maintain data reliability. Explored transactions, ACID properties (Atomicity, Consistency, Isolation, and Durability), and learned how commands like COMMIT, ROLLBACK, and SAVEPOINT help manage transactions effectively. Also gained hands-on experience with database locking concepts, including Shared Locks, Exclusive Locks, and Intent Locks, along with practical examples using LOCK TABLES and UNLOCK TABLES to understand concurrent data access and consistency.
+Every session strengthens my understanding of SQL and brings me one step closer to building reliable and efficient database-driven applications. 🚀
