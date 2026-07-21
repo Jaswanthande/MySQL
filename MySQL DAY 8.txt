@@ -1,0 +1,267 @@
+DAY 8 
+
+CONSTRAINTS
+
+CONSTRAINTS ARE RULES APPLIED TO TABLE COLUMNS IN MYSQL TO ENSURE THAT ONLY VALID, ACCURATE, AND CONSISTENT DATA IS STORED IN THE DATABASE.
+
+IN SIMPLE WORDS
+
+CONSTRAINTS ARE RULES THAT CONTROL THE DATA ENTERED INTO A TABLE.
+
+WHY DO WE USE CONSTRAINTS?
+
+TO MAINTAIN DATA INTEGRITY.
+
+TO PREVENT INVALID DATA ENTRY.
+
+TO AVOID DUPLICATE RECORDS.
+
+TO ENSURE RELATIONSHIPS BETWEEN TABLES.
+
+TO MAKE THE DATABASE RELIABLE AND CONSISTENT.
+
+TYPES OF CONSTRAINTS
+
+NOT NULL – DOES NOT ALLOW NULL VALUES.
+
+UNIQUE – DOES NOT ALLOW DUPLICATE VALUES.
+
+PRIMARY KEY – UNIQUELY IDENTIFIES EACH ROW IN A TABLE. IT CANNOT CONTAIN NULL OR DUPLICATE VALUES.
+
+COMPOSITE KEY – A COMBINATION OF TWO OR MORE COLUMNS USED TO UNIQUELY IDENTIFY EACH ROW.
+
+FOREIGN KEY – ESTABLISHES A RELATIONSHIP BETWEEN TWO TABLES AND MAINTAINS REFERENTIAL INTEGRITY.
+
+A FOREIGN KEY CREATES A RELATIONSHIP BETWEEN TWO TABLES.
+IT REFERENCES THE PRIMARY KEY OF ANOTHER TABLE.
+IT PREVENTS INSERTING INVALID VALUES THAT DO NOT EXIST IN THE PARENT TABLE.
+IT MAINTAINS DATA CONSISTENCY AND REFERENTIAL INTEGRITY.
+ONE PRIMARY KEY CAN BE REFERENCED BY MANY FOREIGN KEYS
+
+
+WHAT ARE REFERENTIAL ACTIONS
+
+REFERENTIAL ACTIONS ARE RULES THAT SPECIFY HOW A DATABASE HANDLES UPDATES OR DELETES IN A PARENT TABLE WHEN RELATED RECORDS EXIST IN A CHILD TABLE.
+
+ON DELETE CASCADE
+
+ON UPDATE CASCADE
+
+mysql> INSERT INTO DEPARTMENT VALUES
+    -> (101,'HR'),
+    -> (102,'IT'),
+    -> (103,'FINACE');
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> CREATE TABLE EMPLOYEE(
+    -> EMP_ID INT PRIMARY KEY,
+    -> EMP_NAME VARCHAR(30),
+    -> DEPT_ID INT,
+    -> FOREIGN KEY(DEPT_ID)
+    -> REFERENCES DEPARTMENT(DEPT_ID)ON DELETE CASCADE ON UPDATE CASCADE);
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> INSERT INTO EMPLOYEE VALUES
+    -> (1,'JASSU',101),
+    -> (2,'JANU',101),
+    -> (3,'YASHU',101),
+    -> (4,'CHARAN',102),
+    -> (5,'BHARATH',103),
+    -> (101,'SATHVIK',102),
+    -> (6,'HEMU',103);
+Query OK, 7 rows affected (0.01 sec)
+Records: 7  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM EMPLOYEE;
++--------+----------+---------+
+| EMP_ID | EMP_NAME | DEPT_ID |
++--------+----------+---------+
+|      1 | JASSU    |     101 |
+|      2 | JANU     |     101 |
+|      3 | YASHU    |     101 |
+|      4 | CHARAN   |     102 |
+|      5 | BHARATH  |     103 |
+|      6 | HEMU     |     103 |
+|    101 | SATHVIK  |     102 |
++--------+----------+---------+
+7 rows in set (0.00 sec)
+
+mysql> SELECT * FROM DEPARTMENT;
++---------+-----------+
+| DEPT_ID | DEPT_NAME |
++---------+-----------+
+|     101 | HR        |
+|     102 | IT        |
+|     103 | FINACE    |
++---------+-----------+
+3 rows in set (0.00 sec)
+
+
+mysql> DELETE FROM DEPARTMENT WHERE DEPT_ID= 103;
+Query OK, 1 row affected (0.00 sec)
+
+mysql> SELECT * FROM DEPARTMENT;
++---------+-----------+
+| DEPT_ID | DEPT_NAME |
++---------+-----------+
+|     101 | HR        |
+|     102 | IT        |
++---------+-----------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT * FROM EMPLOYEE;
++--------+----------+---------+
+| EMP_ID | EMP_NAME | DEPT_ID |
++--------+----------+---------+
+|      1 | JASSU    |     101 |
+|      2 | JANU     |     101 |
+|      3 | YASHU    |     101 |
+|      4 | CHARAN   |     102 |
+|    101 | SATHVIK  |     102 |
++--------+----------+---------+
+5 rows in set (0.00 sec)
+
+mysql> UPDATE DEPARTMENT SET DEPT_ID = 112 WHERE DEPT_ID = 102;
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> SELECT * FROM DEPARTMENT;
++---------+-----------+
+| DEPT_ID | DEPT_NAME |
++---------+-----------+
+|     101 | HR        |
+|     112 | IT        |
++---------+-----------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT * FROM EMPLOYEE;
++--------+----------+---------+
+| EMP_ID | EMP_NAME | DEPT_ID |
++--------+----------+---------+
+|      1 | JASSU    |     101 |
+|      2 | JANU     |     101 |
+|      3 | YASHU    |     101 |
+|      4 | CHARAN   |     112 |
+|    101 | SATHVIK  |     112 |
++--------+----------+---------+
+5 rows in set (0.00 sec)
+
+
+ON DELETE SET NULL
+
+ON UPDATE SET NULL
+
+mysql> CREATE TABLE DEPARTMENTS (
+    ->     DEPT_ID INT PRIMARY KEY,
+    ->     DEPT_NAME VARCHAR(50)
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> INSERT INTO DEPARTMENTs VALUES
+    -> (101, 'HR'),
+    -> (102, 'IT'),
+    -> (103, 'SALES');
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> CREATE TABLE EMPLOYEES (
+    ->     EMP_ID INT PRIMARY KEY,
+    ->     EMP_NAME VARCHAR(50),
+    ->     DEPT_ID INT NULL,
+    ->     FOREIGN KEY (DEPT_ID)
+    ->     REFERENCES DEPARTMENTs(DEPT_ID)
+    ->     ON DELETE SET NULL
+    ->     ON UPDATE SET NULL
+    -> );
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> INSERT INTO EMPLOYEES VALUES
+    -> (1, 'RAHUL', 101),
+    -> (2, 'PRIYA', 102),
+    -> (3, 'ARJUN', 103),
+    -> (4, 'SNEHA', 101);
+Query OK, 4 rows affected (0.01 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM DEPARTMENTs;
++---------+-----------+
+| DEPT_ID | DEPT_NAME |
++---------+-----------+
+|     101 | HR        |
+|     102 | IT        |
+|     103 | SALES     |
++---------+-----------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT * FROM EMPLOYEEs;
++--------+----------+---------+
+| EMP_ID | EMP_NAME | DEPT_ID |
++--------+----------+---------+
+|      1 | RAHUL    |     101 |
+|      2 | PRIYA    |     102 |
+|      3 | ARJUN    |     103 |
+|      4 | SNEHA    |     101 |
++--------+----------+---------+
+4 rows in set (0.00 sec)
+
+
+mysql> DELETE FROM DEPARTMENTS
+    -> WHERE DEPT_ID = 101;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> SELECT * FROM EMPLOYEEs;
++--------+----------+---------+
+| EMP_ID | EMP_NAME | DEPT_ID |
++--------+----------+---------+
+|      1 | RAHUL    |    NULL |
+|      2 | PRIYA    |     102 |
+|      3 | ARJUN    |     103 |
+|      4 | SNEHA    |    NULL |
++--------+----------+---------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT * FROM DEPARTMENTs;
++---------+-----------+
+| DEPT_ID | DEPT_NAME |
++---------+-----------+
+|     102 | IT        |
+|     103 | SALES     |
++---------+-----------+
+2 rows in set (0.00 sec)
+
+mysql> UPDATE DEPARTMENTS
+    -> SET DEPT_ID = 202
+    -> WHERE DEPT_ID = 102;
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> SELECT * FROM DEPARTMENTs;
++---------+-----------+
+| DEPT_ID | DEPT_NAME |
++---------+-----------+
+|     103 | SALES     |
+|     202 | IT        |
++---------+-----------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT * FROM EMPLOYEEs;
++--------+----------+---------+
+| EMP_ID | EMP_NAME | DEPT_ID |
++--------+----------+---------+
+|      1 | RAHUL    |    NULL |
+|      2 | PRIYA    |    NULL |
+|      3 | ARJUN    |     103 |
+|      4 | SNEHA    |    NULL |
++--------+----------+---------+
+4 rows in set (0.00 sec)
+
+
+CHECK – ENSURES THAT THE VALUES IN A COLUMN SATISFY A SPECIFIED CONDITION.
+
+DEFAULT – ASSIGNS A DEFAULT VALUE TO A COLUMN WHEN NO VALUE IS PROVIDED.
+
+
+UPDATE DEPARTMENTS
+SET DEPT_ID = 202
+WHERE DEPT_ID = 102;
