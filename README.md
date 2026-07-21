@@ -38,3 +38,7 @@ Today, I expanded my MySQL knowledge by working with advanced database concepts 
 
 Continued my SQL learning journey by diving into Transaction Control Language (TCL) and understanding how databases maintain data reliability. Explored transactions, ACID properties (Atomicity, Consistency, Isolation, and Durability), and learned how commands like COMMIT, ROLLBACK, and SAVEPOINT help manage transactions effectively. Also gained hands-on experience with database locking concepts, including Shared Locks, Exclusive Locks, and Intent Locks, along with practical examples using LOCK TABLES and UNLOCK TABLES to understand concurrent data access and consistency.
 Every session strengthens my understanding of SQL and brings me one step closer to building reliable and efficient database-driven applications. 🚀
+
+🌟 Day 8 MySQL – Constraints & Referential Actions
+
+Learned how Constraints help maintain data integrity by ensuring only valid, accurate, and consistent data is stored in MySQL tables. Explored different types of constraints such as NOT NULL, UNIQUE, PRIMARY KEY, COMPOSITE KEY, FOREIGN KEY, CHECK, and DEFAULT. Gained hands-on experience with Foreign Keys and Referential Actions, including ON DELETE CASCADE, ON UPDATE CASCADE, ON DELETE SET NULL, and ON UPDATE SET NULL, to understand how relationships between parent and child tables are maintained during updates and deletions. Practiced creating related tables and observed the behavior of these constraints through real-time SQL examples.
