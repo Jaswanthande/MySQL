@@ -42,3 +42,7 @@ Every session strengthens my understanding of SQL and brings me one step closer 
 🌟 Day 8 MySQL – Constraints & Referential Actions
 
 Learned how Constraints help maintain data integrity by ensuring only valid, accurate, and consistent data is stored in MySQL tables. Explored different types of constraints such as NOT NULL, UNIQUE, PRIMARY KEY, COMPOSITE KEY, FOREIGN KEY, CHECK, and DEFAULT. Gained hands-on experience with Foreign Keys and Referential Actions, including ON DELETE CASCADE, ON UPDATE CASCADE, ON DELETE SET NULL, and ON UPDATE SET NULL, to understand how relationships between parent and child tables are maintained during updates and deletions. Practiced creating related tables and observed the behavior of these constraints through real-time SQL examples.
+
+🌟 Day 9 MySQL – SQL Operators & Data Manipulation
+
+Learned how SQL Operators are used to perform calculations, compare values, and filter data efficiently in MySQL. Explored Arithmetic Operators (+, -, *, /, %), Comparison Operators (=, !=, >, <, >=, <=), and Logical Operators (AND, OR, NOT) to retrieve specific records based on different conditions. Gained hands-on experience with UPDATE and DELETE statements by modifying and removing records using conditional queries. Practiced working with Products, StudentScores, and Employees tables to strengthen SQL querying and data manipulation skills through real-time examples.
