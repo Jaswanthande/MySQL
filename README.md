@@ -46,3 +46,7 @@ Learned how Constraints help maintain data integrity by ensuring only valid, acc
 🌟 Day 9 MySQL – SQL Operators & Data Manipulation
 
 Learned how SQL Operators are used to perform calculations, compare values, and filter data efficiently in MySQL. Explored Arithmetic Operators (+, -, *, /, %), Comparison Operators (=, !=, >, <, >=, <=), and Logical Operators (AND, OR, NOT) to retrieve specific records based on different conditions. Gained hands-on experience with UPDATE and DELETE statements by modifying and removing records using conditional queries. Practiced working with Products, StudentScores, and Employees tables to strengthen SQL querying and data manipulation skills through real-time examples.
+
+🌟 Day 10 MySQL – NULL, BETWEEN, IN, LIKE & CASE Operators
+
+Today I strengthened my MySQL skills by working with advanced SQL operators and conditional statements. Practiced handling missing data using NULL Operators (IS NULL, IS NOT NULL), filtering records with the BETWEEN operator, selecting multiple values using the IN operator, searching patterns with the LIKE operator, and categorizing data using CASE expressions. Also gained hands-on experience with SELECT, UPDATE, and DELETE queries by applying these operators to Projects, Orders, and Employees tables through practical examples, improving my understanding of data filtering, manipulation, and conditional logic.
