@@ -50,3 +50,15 @@ Learned how SQL Operators are used to perform calculations, compare values, and 
 🌟 Day 10 MySQL – NULL, BETWEEN, IN, LIKE & CASE Operators
 
 Today I strengthened my MySQL skills by working with advanced SQL operators and conditional statements. Practiced handling missing data using NULL Operators (IS NULL, IS NOT NULL), filtering records with the BETWEEN operator, selecting multiple values using the IN operator, searching patterns with the LIKE operator, and categorizing data using CASE expressions. Also gained hands-on experience with SELECT, UPDATE, and DELETE queries by applying these operators to Projects, Orders, and Employees tables through practical examples, improving my understanding of data filtering, manipulation, and conditional logic.
+
+🌟 Day 11 MySQL – Aggregate Functions & SQL Clauses
+
+Today I strengthened my MySQL skills by learning Aggregate Functions and SQL Clauses. Practiced using COUNT(), SUM(), AVG(), MIN(), and MAX() to perform data analysis and generate meaningful insights from tables. Explored SQL clauses such as WHERE, GROUP BY, HAVING, and ORDER BY to filter, group, and sort data efficiently. Also gained hands-on experience with built-in MySQL functions like CURDATE(), CURTIME(), NOW(), DATABASE(), USER(), and VERSION(), improving my understanding of data analysis and query optimization through practical examples.
+
+🌟 Day 12 MySQL – Set Operators, GROUP BY, HAVING & ORDER BY
+
+Today I enhanced my MySQL knowledge by practicing Set Operators and advanced data grouping techniques. Learned how to combine query results using UNION and UNION ALL, while understanding the concepts of INTERSECT and MINUS in MySQL. Worked extensively with GROUP BY, HAVING, and ORDER BY along with aggregate functions to summarize, filter, and sort data effectively. Applied these concepts to Sales tables through practical examples, improving my SQL query-writing and data analysis skills.
+
+🌟 Day 13 MySQL – Numeric & String Functions
+
+Today I explored MySQL Numeric and String Functions to perform mathematical calculations and manipulate text data efficiently. Practiced numeric functions such as ABS(), CEIL(), FLOOR(), ROUND(), MOD(), POWER(), LOG(), RAND(), PI(), BIN(), and OCT(). Also learned string functions including CONCAT(), CONCAT_WS(), UPPER(), LOWER(), SUBSTRING(), LENGTH(), TRIM(), REPLACE(), LEFT(), RIGHT(), and POSITION(). Applied these functions to Employee tables through hands-on examples, strengthening my understanding of data transformation, formatting, and real-world SQL operations.
