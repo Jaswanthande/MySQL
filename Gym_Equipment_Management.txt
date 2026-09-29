@@ -1,0 +1,2093 @@
+mysql>========================
+mysql>-- CREATE A DATABASE -- 
+mysql>========================
+mysql> CREATE DATABASE gym_equipment_management;
+Query OK, 1 row affected (0.01 sec)
+
+mysql>
+mysql> USE gym_equipment_management;
+Database changed
+
+
+
+===========================================================================================================================================================================================================================================
+
+
+
+mysql>==============================
+mysql>-- CREATE REQUIRED TABLES --
+mysql>==============================
+mysql> CREATE TABLE users (
+    ->     user_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     name VARCHAR(100) NOT NULL,
+    ->     email VARCHAR(100) UNIQUE NOT NULL,
+    ->     phone VARCHAR(20),
+    ->     password VARCHAR(255) NOT NULL,
+    ->     role VARCHAR(20) DEFAULT 'Customer',
+    ->     registration_date DATE DEFAULT (CURRENT_DATE),
+    ->     status VARCHAR(20) DEFAULT 'Active'
+    -> );
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> CREATE TABLE addresses (
+    ->     address_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     user_id INT NOT NULL,
+    ->     address_type VARCHAR(20),
+    ->     address_line1 VARCHAR(150) NOT NULL,
+    ->     address_line2 VARCHAR(150),
+    ->     city VARCHAR(60),
+    ->     state VARCHAR(60),
+    ->     pincode VARCHAR(10),
+    ->     country VARCHAR(60) DEFAULT 'India',
+    ->     phone VARCHAR(20),
+    ->
+    ->     FOREIGN KEY (user_id)
+    ->         REFERENCES users(user_id)
+    ->         ON DELETE CASCADE
+    -> );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> CREATE TABLE equipment_category (
+    ->     category_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     name VARCHAR(100) NOT NULL,
+    ->     description TEXT,
+    ->     image_url VARCHAR(255),
+    ->     parent_category_id INT,
+    ->
+    ->     FOREIGN KEY (parent_category_id)
+    ->         REFERENCES equipment_category(category_id)
+    ->         ON DELETE SET NULL
+    -> );
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> CREATE TABLE equipment_subcategory (
+    ->     subcategory_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     category_id INT NOT NULL,
+    ->     name VARCHAR(100) NOT NULL,
+    ->     description TEXT,
+    ->     image_url VARCHAR(255),
+    ->
+    ->     FOREIGN KEY (category_id)
+    ->         REFERENCES equipment_category(category_id)
+    ->         ON DELETE CASCADE
+    -> );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> CREATE TABLE brand (
+    ->     brand_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     brand_name VARCHAR(100) NOT NULL,
+    ->     country VARCHAR(100),
+    ->     website VARCHAR(255)
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> CREATE TABLE equipment (
+    ->     equipment_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     subcategory_id INT NOT NULL,
+    ->     brand_id INT,
+    ->     equipment_name VARCHAR(150) NOT NULL,
+    ->     description TEXT,
+    ->     specifications TEXT,
+    ->     is_customizable BOOLEAN DEFAULT FALSE,
+    ->     status VARCHAR(20) DEFAULT 'Active',
+    ->
+    ->     FOREIGN KEY (subcategory_id)
+    ->         REFERENCES equipment_subcategory(subcategory_id),
+    ->
+    ->     FOREIGN KEY (brand_id)
+    ->         REFERENCES brand(brand_id)
+    ->         ON DELETE SET NULL
+    -> );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> CREATE TABLE product_variant (
+    ->     variant_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     equipment_id INT NOT NULL,
+    ->     variant_name VARCHAR(150),
+    ->     size VARCHAR(50),
+    ->     color VARCHAR(50),
+    ->     material VARCHAR(100),
+    ->     length_cm DECIMAL(10,2),
+    ->     width_cm DECIMAL(10,2),
+    ->     height_cm DECIMAL(10,2),
+    ->     weight_kg DECIMAL(10,2),
+    ->     price DECIMAL(12,2) NOT NULL,
+    ->     discount_price DECIMAL(12,2),
+    ->     warranty_months INT,
+    ->     sku_code VARCHAR(50) UNIQUE,
+    ->     status VARCHAR(20) DEFAULT 'Available',
+    ->
+    ->     FOREIGN KEY (equipment_id)
+    ->         REFERENCES equipment(equipment_id)
+    ->         ON DELETE CASCADE
+    -> );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> CREATE TABLE equipment_image (
+    ->     image_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     equipment_id INT NOT NULL,
+    ->     image_url VARCHAR(255) NOT NULL,
+    ->     is_primary BOOLEAN DEFAULT FALSE,
+    ->
+    ->     FOREIGN KEY (equipment_id)
+    ->         REFERENCES equipment(equipment_id)
+    ->         ON DELETE CASCADE
+    -> );
+Query OK, 0 rows affected (0.08 sec)
+
+mysql> CREATE TABLE equipment_specification (
+    ->     spec_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     equipment_id INT NOT NULL,
+    ->     spec_name VARCHAR(100) NOT NULL,
+    ->     spec_value VARCHAR(150) NOT NULL,
+    ->     unit VARCHAR(30),
+    ->
+    ->     FOREIGN KEY (equipment_id)
+    ->         REFERENCES equipment(equipment_id)
+    ->         ON DELETE CASCADE
+    -> );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> CREATE TABLE equipment_dimension (
+    ->     dimension_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     equipment_id INT NOT NULL,
+    ->     length_cm DECIMAL(10,2),
+    ->     width_cm DECIMAL(10,2),
+    ->     height_cm DECIMAL(10,2),
+    ->     weight_kg DECIMAL(10,2),
+    ->     max_user_weight_kg DECIMAL(10,2),
+    ->
+    ->     FOREIGN KEY (equipment_id)
+    ->         REFERENCES equipment(equipment_id)
+    ->         ON DELETE CASCADE
+    -> );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> CREATE TABLE custom_equipment_request (
+    ->     request_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     user_id INT NOT NULL,
+    ->     subcategory_id INT NOT NULL,
+    ->     required_name VARCHAR(150),
+    ->     required_specification TEXT,
+    ->     length_cm DECIMAL(10,2),
+    ->     width_cm DECIMAL(10,2),
+    ->     height_cm DECIMAL(10,2),
+    ->     weight_kg DECIMAL(10,2),
+    ->     max_budget DECIMAL(12,2),
+    ->     notes TEXT,
+    ->     request_date DATE DEFAULT (CURRENT_DATE),
+    ->     status VARCHAR(20) DEFAULT 'Pending',
+    ->
+    ->     FOREIGN KEY (user_id)
+    ->         REFERENCES users(user_id),
+    ->
+    ->     FOREIGN KEY (subcategory_id)
+    ->         REFERENCES equipment_subcategory(subcategory_id)
+    -> );
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> CREATE TABLE store (
+    ->     store_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     store_name VARCHAR(150) NOT NULL,
+    ->     address_line1 VARCHAR(150),
+    ->     address_line2 VARCHAR(150),
+    ->     city VARCHAR(60),
+    ->     state VARCHAR(60),
+    ->     pincode VARCHAR(10),
+    ->     phone VARCHAR(20),
+    ->     email VARCHAR(100),
+    ->     latitude DECIMAL(10,6),
+    ->     longitude DECIMAL(10,6)
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> CREATE TABLE staff (
+    ->     staff_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     store_id INT NOT NULL,
+    ->     name VARCHAR(100) NOT NULL,
+    ->     designation VARCHAR(100),
+    ->     phone VARCHAR(20),
+    ->     email VARCHAR(100),
+    ->     hire_date DATE,
+    ->     status VARCHAR(20) DEFAULT 'Active',
+    ->
+    ->     FOREIGN KEY (store_id)
+    ->         REFERENCES store(store_id)
+    ->         ON DELETE CASCADE
+    -> );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> CREATE TABLE workout_zone (
+    ->     zone_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     store_id INT NOT NULL,
+    ->     zone_name VARCHAR(100) NOT NULL,
+    ->     description TEXT,
+    ->
+    ->     FOREIGN KEY (store_id)
+    ->         REFERENCES store(store_id)
+    ->         ON DELETE CASCADE
+    -> );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> CREATE TABLE equipment_available (
+    ->     available_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     zone_id INT NOT NULL,
+    ->     variant_id INT NOT NULL,
+    ->     quantity_available INT DEFAULT 0,
+    ->
+    ->     FOREIGN KEY (zone_id)
+    ->         REFERENCES workout_zone(zone_id)
+    ->         ON DELETE CASCADE,
+    ->
+    ->     FOREIGN KEY (variant_id)
+    ->         REFERENCES product_variant(variant_id)
+    ->         ON DELETE CASCADE,
+    ->
+    ->     UNIQUE (zone_id, variant_id)
+    -> );
+Query OK, 0 rows affected (0.08 sec)
+
+mysql> CREATE TABLE workout_session (
+    ->     session_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     user_id INT NOT NULL,
+    ->     store_id INT NOT NULL,
+    ->     zone_id INT NOT NULL,
+    ->     start_time DATETIME NOT NULL,
+    ->     end_time DATETIME,
+    ->     calories_burned INT,
+    ->     rating TINYINT,
+    ->     feedback TEXT,
+    ->
+    ->     FOREIGN KEY (user_id)
+    ->         REFERENCES users(user_id),
+    ->
+    ->     FOREIGN KEY (store_id)
+    ->         REFERENCES store(store_id),
+    ->
+    ->     FOREIGN KEY (zone_id)
+    ->         REFERENCES workout_zone(zone_id),
+    ->
+    ->     CHECK (rating IS NULL OR rating BETWEEN 1 AND 5)
+    -> );
+Query OK, 0 rows affected (0.10 sec)
+
+mysql> CREATE TABLE orders (
+    ->     order_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     user_id INT NOT NULL,
+    ->     store_id INT,
+    ->     order_type VARCHAR(20) NOT NULL,
+    ->     order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ->     order_status VARCHAR(30) DEFAULT 'Pending',
+    ->     total_amount DECIMAL(12,2) DEFAULT 0,
+    ->
+    ->     FOREIGN KEY (user_id)
+    ->         REFERENCES users(user_id),
+    ->
+    ->     FOREIGN KEY (store_id)
+    ->         REFERENCES store(store_id)
+    ->         ON DELETE SET NULL,
+    ->
+    ->     CHECK (order_type IN ('Online', 'Offline'))
+    -> );
+Query OK, 0 rows affected (0.08 sec)
+
+mysql> CREATE TABLE order_item (
+    ->     order_item_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     order_id INT NOT NULL,
+    ->     variant_id INT NOT NULL,
+    ->     quantity INT NOT NULL,
+    ->     unit_price DECIMAL(12,2) NOT NULL,
+    ->     discount DECIMAL(12,2) DEFAULT 0,
+    ->     total_price DECIMAL(12,2) NOT NULL,
+    ->
+    ->     FOREIGN KEY (order_id)
+    ->         REFERENCES orders(order_id)
+    ->         ON DELETE CASCADE,
+    ->
+    ->     FOREIGN KEY (variant_id)
+    ->         REFERENCES product_variant(variant_id),
+    ->
+    ->     CHECK (quantity > 0)
+    -> );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> CREATE TABLE payment (
+    ->     payment_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     order_id INT NOT NULL,
+    ->     payment_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ->     amount DECIMAL(12,2) NOT NULL,
+    ->     payment_method VARCHAR(30),
+    ->     payment_status VARCHAR(30) DEFAULT 'Pending',
+    ->     transaction_id VARCHAR(100),
+    ->
+    ->     FOREIGN KEY (order_id)
+    ->         REFERENCES orders(order_id)
+    ->         ON DELETE CASCADE
+    -> );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> CREATE TABLE inventory (
+    ->     inventory_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     store_id INT NOT NULL,
+    ->     variant_id INT NOT NULL,
+    ->     stock_quantity INT DEFAULT 0,
+    ->     reserved_quantity INT DEFAULT 0,
+    ->     reorder_level INT DEFAULT 5,
+    ->     last_updated DATETIME DEFAULT CURRENT_TIMESTAMP
+    ->         ON UPDATE CURRENT_TIMESTAMP,
+    ->
+    ->     FOREIGN KEY (store_id)
+    ->         REFERENCES store(store_id)
+    ->         ON DELETE CASCADE,
+    ->
+    ->     FOREIGN KEY (variant_id)
+    ->         REFERENCES product_variant(variant_id)
+    ->         ON DELETE CASCADE,
+    ->
+    ->     UNIQUE (store_id, variant_id),
+    ->
+    ->     CHECK (stock_quantity >= 0),
+    ->     CHECK (reserved_quantity >= 0)
+    -> );
+Query OK, 0 rows affected (0.08 sec)
+
+mysql> CREATE TABLE supplier (
+    ->     supplier_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     supplier_name VARCHAR(150) NOT NULL,
+    ->     contact_person VARCHAR(100),
+    ->     phone VARCHAR(20),
+    ->     email VARCHAR(100),
+    ->     address VARCHAR(150),
+    ->     country VARCHAR(60)
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> CREATE TABLE purchase_order (
+    ->     po_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     supplier_id INT NOT NULL,
+    ->     store_id INT NOT NULL,
+    ->     po_date DATE DEFAULT (CURRENT_DATE),
+    ->     status VARCHAR(20) DEFAULT 'Pending',
+    ->     total_amount DECIMAL(12,2) DEFAULT 0,
+    ->
+    ->     FOREIGN KEY (supplier_id)
+    ->         REFERENCES supplier(supplier_id),
+    ->
+    ->     FOREIGN KEY (store_id)
+    ->         REFERENCES store(store_id)
+    -> );
+Query OK, 0 rows affected (0.08 sec)
+
+mysql> CREATE TABLE purchase_order_item (
+    ->     po_item_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     po_id INT NOT NULL,
+    ->     variant_id INT NOT NULL,
+    ->     quantity INT NOT NULL,
+    ->     unit_price DECIMAL(12,2) NOT NULL,
+    ->     total_price DECIMAL(12,2) NOT NULL,
+    ->
+    ->     FOREIGN KEY (po_id)
+    ->         REFERENCES purchase_order(po_id)
+    ->         ON DELETE CASCADE,
+    ->
+    ->     FOREIGN KEY (variant_id)
+    ->         REFERENCES product_variant(variant_id),
+    ->
+    ->     CHECK (quantity > 0)
+    -> );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> CREATE TABLE review (
+    ->     review_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     user_id INT NOT NULL,
+    ->     variant_id INT NOT NULL,
+    ->     rating TINYINT NOT NULL,
+    ->     review_text TEXT,
+    ->     review_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ->
+    ->     FOREIGN KEY (user_id)
+    ->         REFERENCES users(user_id),
+    ->
+    ->     FOREIGN KEY (variant_id)
+    ->         REFERENCES product_variant(variant_id),
+    ->
+    ->     CHECK (rating BETWEEN 1 AND 5)
+    -> );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> CREATE TABLE wishlist (
+    ->     wishlist_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     user_id INT NOT NULL,
+    ->     variant_id INT NOT NULL,
+    ->     added_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ->
+    ->     FOREIGN KEY (user_id)
+    ->         REFERENCES users(user_id)
+    ->         ON DELETE CASCADE,
+    ->
+    ->     FOREIGN KEY (variant_id)
+    ->         REFERENCES product_variant(variant_id)
+    ->         ON DELETE CASCADE,
+    ->
+    ->     UNIQUE (user_id, variant_id)
+    -> );
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> SHOW TABLES;
++------------------------------------+
+| Tables_in_gym_equipment_management |
++------------------------------------+
+| addresses                          |
+| brand                              |
+| custom_equipment_request           |
+| equipment                          |
+| equipment_available                |
+| equipment_category                 |
+| equipment_dimension                |
+| equipment_image                    |
+| equipment_specification            |
+| equipment_subcategory              |
+| inventory                          |
+| order_item                         |
+| orders                             |
+| payment                            |
+| product_variant                    |
+| purchase_order                     |
+| purchase_order_item                |
+| review                             |
+| staff                              |
+| store                              |
+| supplier                           |
+| users                              |
+| wishlist                           |
+| workout_session                    |
+| workout_zone                       |
++------------------------------------+
+25 rows in set (0.01 sec)
+
+
+
+==========================================================================================================================================================================================================================================
+
+
+
+mysql>========================================
+mysql> -- INSERTING VALUES INTO EACH TABLE --
+mysql>========================================
+mysql> INSERT INTO users
+    -> (user_id, name, email, phone, password, role, registration_date, status)
+    -> VALUES
+    -> (1, 'Rahul Sharma', 'rahul@gmail.com', '9876543210', 'pass123', 'Customer', '2026-01-10', 'Active'),
+    -> (2, 'Priya Patel', 'priya@gmail.com', '9876543211', 'pass123', 'Customer', '2026-01-15', 'Active'),
+    -> (3, 'Arjun Mehta', 'arjun@gmail.com', '9876543212', 'pass123', 'Gym Owner', '2026-02-01', 'Active'),
+    -> (4, 'Sneha Reddy', 'sneha@gmail.com', '9876543213', 'pass123', 'Trainer', '2026-02-05', 'Active'),
+    -> (5, 'Vikram Singh', 'vikram@gmail.com', '9876543214', 'pass123', 'Customer', '2026-02-10', 'Active'),
+    -> (6, 'Ananya Rao', 'ananya@gmail.com', '9876543215', 'pass123', 'Gym Owner', '2026-02-15', 'Active'),
+    -> (7, 'Karan Shah', 'karan@gmail.com', '9876543216', 'pass123', 'Customer', '2026-03-01', 'Active'),
+    -> (8, 'Neha Joshi', 'neha@gmail.com', '9876543217', 'pass123', 'Customer', '2026-03-05', 'Active');
+Query OK, 8 rows affected (0.02 sec)
+Records: 8  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO addresses
+    -> (address_id, user_id, address_type, address_line1, address_line2,
+    -> city, state, pincode, country, phone)
+    -> VALUES
+    -> (1, 1, 'Home', '12 MG Road', 'Near City Mall', 'Mumbai', 'Maharashtra', '400001', 'India', '9876543210'),
+    -> (2, 1, 'Office', '45 Business Park', 'Andheri East', 'Mumbai', 'Maharashtra', '400069', 'India', '9876543210'),
+    -> (3, 2, 'Home', '22 Park Street', 'Salt Lake', 'Kolkata', 'West Bengal', '700091', 'India', '9876543211'),
+    -> (4, 3, 'Gym', '100 Fitness Road', 'Koramangala', 'Bangalore', 'Karnataka', '560034', 'India', '9876543212'),
+    -> (5, 5, 'Home', '78 Civil Lines', 'Main Road', 'Delhi', 'Delhi', '110054', 'India', '9876543214'),
+    -> (6, 6, 'Gym', '55 FC Road', 'Shivajinagar', 'Pune', 'Maharashtra', '411005', 'India', '9876543215');
+Query OK, 6 rows affected (0.02 sec)
+Records: 6  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO equipment_category
+    -> (category_id, name, description, image_url, parent_category_id)
+    -> VALUES
+    -> (1, 'Cardio Equipment', 'Equipment used for cardiovascular training', 'cardio.jpg', NULL),
+    -> (2, 'Strength Equipment', 'Machines used for strength and resistance training', 'strength.jpg', NULL),
+    -> (3, 'Free Weights', 'Free weight training equipment', 'freeweights.jpg', NULL),
+    -> (4, 'Functional Training', 'Equipment for functional and cross training', 'functional.jpg', NULL),
+    -> (5, 'Yoga & Flexibility', 'Equipment for yoga, stretching and flexibility', 'yoga.jpg', NULL);
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO equipment_subcategory
+    -> (subcategory_id, category_id, name, description, image_url)
+    -> VALUES
+    -> (1, 1, 'Treadmills', 'Motorized and commercial treadmills', 'treadmill.jpg'),
+    -> (2, 1, 'Exercise Bikes', 'Stationary and spinning bikes', 'bike.jpg'),
+    -> (3, 1, 'Elliptical Trainers', 'Low impact cardio machines', 'elliptical.jpg'),
+    -> (4, 2, 'Weight Machines', 'Machines for resistance training', 'weightmachine.jpg'),
+    -> (5, 2, 'Cable Machines', 'Cable-based strength equipment', 'cable.jpg'),
+    -> (6, 3, 'Dumbbells', 'Fixed and adjustable dumbbells', 'dumbbells.jpg'),
+    -> (7, 3, 'Barbells', 'Olympic and standard barbells', 'barbells.jpg'),
+    -> (8, 4, 'Power Racks', 'Squat and power training racks', 'rack.jpg'),
+    -> (9, 4, 'Kettlebells', 'Kettlebell training equipment', 'kettlebell.jpg'),
+    -> (10, 5, 'Yoga Mats', 'Exercise and yoga mats', 'yogamat.jpg');
+Query OK, 10 rows affected (0.01 sec)
+Records: 10  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO brand
+    -> (brand_id, brand_name, country, website)
+    -> VALUES
+    -> (1, 'Life Fitness', 'USA', 'https://www.lifefitness.com'),
+    -> (2, 'Technogym', 'Italy', 'https://www.technogym.com'),
+    -> (3, 'Nautilus', 'USA', 'https://www.nautilus.com'),
+    -> (4, 'PowerMax', 'India', 'https://www.powermaxfitness.net'),
+    -> (5, 'Decathlon', 'France', 'https://www.decathlon.in'),
+    -> (6, 'FitLine', 'India', 'https://www.fitline.com');
+Query OK, 6 rows affected (0.01 sec)
+Records: 6  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO equipment
+    -> (equipment_id, subcategory_id, brand_id, equipment_name,
+    -> description, specifications, is_customizable, status)
+    -> VALUES
+    -> (1, 1, 1, 'Commercial Treadmill X1',
+    ->  'Heavy-duty commercial treadmill for gyms',
+    ->  'AC Motor, 20 km/h maximum speed, shock absorption',
+    ->  FALSE, 'Active'),
+    ->
+    -> (2, 1, 4, 'PowerRun Treadmill P500',
+    ->  'Commercial treadmill for medium-sized gyms',
+    ->  '4 HP motor, 18 km/h speed',
+    ->  FALSE, 'Active'),
+    ->
+    -> (3, 2, 2, 'Technogym Exercise Bike',
+    ->  'Professional indoor exercise bike',
+    ->  'Magnetic resistance, digital console',
+    ->  FALSE, 'Active'),
+    ->
+    -> (4, 3, 3, 'Nautilus Elliptical E200',
+    ->  'Commercial elliptical trainer',
+    ->  'Adjustable resistance, digital display',
+    ->  FALSE, 'Active'),
+    ->
+    -> (5, 4, 2, 'Leg Press Machine',
+    ->  'Commercial leg press machine',
+    ->  'Heavy-duty steel frame',
+    ->  FALSE, 'Active'),
+    ->
+    -> (6, 6, 5, 'Adjustable Dumbbell Set',
+    ->  'Adjustable dumbbell system',
+    ->  'Multiple weight settings',
+    ->  TRUE, 'Active'),
+    ->
+    -> (7, 8, 6, 'Commercial Power Rack',
+    ->  'Heavy-duty power rack for strength training',
+    ->  'Steel frame, adjustable safety bars',
+    ->  TRUE, 'Active'),
+    ->
+    -> (8, 10, 5, 'Premium Yoga Mat',
+    ->  'High-density yoga and exercise mat',
+    ->  'Non-slip surface',
+    ->  FALSE, 'Active');
+Query OK, 8 rows affected (0.01 sec)
+Records: 8  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO product_variant
+    -> (variant_id, equipment_id, variant_name, size, color, material,
+    -> length_cm, width_cm, height_cm, weight_kg, price,
+    -> discount_price, warranty_months, sku_code, status)
+    -> VALUES
+    -> (1, 1, 'X1 Standard', 'Standard', 'Black', 'Steel',
+    -> 220, 95, 155, 180, 450000, 425000, 36, 'TREAD-X1-STD', 'Available'),
+    ->
+    -> (2, 1, 'X1 Compact', 'Compact', 'Black', 'Steel',
+    -> 200, 85, 150, 165, 420000, 399000, 36, 'TREAD-X1-CMP', 'Available'),
+    ->
+    -> (3, 2, 'P500 Commercial', 'Large', 'Black', 'Steel',
+    -> 215, 90, 150, 170, 280000, 259000, 24, 'P500-COM', 'Available'),
+    ->
+    -> (4, 3, 'Technogym Bike Pro', 'Standard', 'Black', 'Steel',
+    -> 120, 60, 140, 65, 175000, 159000, 24, 'TECH-BIKE-PRO', 'Available'),
+    ->
+    -> (5, 4, 'E200 Elliptical', 'Standard', 'Grey', 'Steel',
+    -> 210, 75, 165, 95, 220000, 205000, 24, 'NAU-E200', 'Available'),
+    ->
+    -> (6, 5, 'Leg Press 500', 'Large', 'Black', 'Steel',
+    -> 220, 120, 150, 350, 250000, 235000, 36, 'LEG-500', 'Available'),
+    ->
+    -> (7, 6, 'Dumbbell 20KG', '20 KG', 'Black', 'Cast Iron',
+    -> 40, 20, 20, 20, 8500, 7500, 12, 'DB-20KG', 'Available'),
+    ->
+    -> (8, 6, 'Dumbbell 30KG', '30 KG', 'Black', 'Cast Iron',
+    -> 45, 22, 22, 30, 12000, 10500, 12, 'DB-30KG', 'Available'),
+    ->
+    -> (9, 7, 'Power Rack Standard', 'Standard', 'Black', 'Steel',
+    -> 150, 140, 230, 180, 85000, 79000, 24, 'RACK-STD', 'Available'),
+    ->
+    -> (10, 7, 'Power Rack XL', 'XL', 'Black', 'Steel',
+    -> 180, 160, 240, 220, 110000, 99900, 24, 'RACK-XL', 'Available'),
+    ->
+    -> (11, 8, 'Yoga Mat 8MM', 'Standard', 'Blue', 'PVC',
+    -> 183, 61, 0.8, 2, 2500, 1999, 6, 'YOGA-8MM', 'Available');
+Query OK, 11 rows affected (0.01 sec)
+Records: 11  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO equipment_image
+    -> (image_id, equipment_id, image_url, is_primary)
+    -> VALUES
+    -> (1, 1, 'images/treadmill_x1_front.jpg', TRUE),
+    -> (2, 1, 'images/treadmill_x1_side.jpg', FALSE),
+    -> (3, 2, 'images/p500_front.jpg', TRUE),
+    -> (4, 3, 'images/technogym_bike.jpg', TRUE),
+    -> (5, 4, 'images/elliptical_e200.jpg', TRUE),
+    -> (6, 5, 'images/leg_press.jpg', TRUE),
+    -> (7, 6, 'images/adjustable_dumbbell.jpg', TRUE),
+    -> (8, 7, 'images/power_rack.jpg', TRUE),
+    -> (9, 8, 'images/yoga_mat.jpg', TRUE);
+Query OK, 9 rows affected (0.01 sec)
+Records: 9  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO equipment_specification
+    -> (spec_id, equipment_id, spec_name, spec_value, unit)
+    -> VALUES
+    -> (1, 1, 'Motor Power', '5.0', 'HP'),
+    -> (2, 1, 'Maximum Speed', '20', 'km/h'),
+    -> (3, 1, 'Maximum User Weight', '180', 'kg'),
+    ->
+    -> (4, 2, 'Motor Power', '4.0', 'HP'),
+    -> (5, 2, 'Maximum Speed', '18', 'km/h'),
+    -> (6, 2, 'Maximum User Weight', '150', 'kg'),
+    ->
+    -> (7, 3, 'Resistance Levels', '32', 'Levels'),
+    -> (8, 3, 'Display', 'Touch Screen', NULL),
+    ->
+    -> (9, 4, 'Resistance Levels', '25', 'Levels'),
+    ->
+    -> (10, 5, 'Maximum Load', '400', 'kg'),
+    ->
+    -> (11, 7, 'Maximum Load', '500', 'kg'),
+    ->
+    -> (12, 8, 'Thickness', '8', 'mm');
+Query OK, 12 rows affected (0.01 sec)
+Records: 12  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO equipment_dimension
+    -> (dimension_id, equipment_id, length_cm, width_cm, height_cm,
+    -> weight_kg, max_user_weight_kg)
+    -> VALUES
+    -> (1, 1, 220, 95, 155, 180, 180),
+    -> (2, 2, 215, 90, 150, 170, 150),
+    -> (3, 3, 120, 60, 140, 65, 150),
+    -> (4, 4, 210, 75, 165, 95, 160),
+    -> (5, 5, 220, 120, 150, 350, 200),
+    -> (6, 6, 45, 22, 22, 30, 150),
+    -> (7, 7, 180, 160, 240, 220, 200),
+    -> (8, 8, 183, 61, 0.8, 2, 120);
+Query OK, 8 rows affected (0.01 sec)
+Records: 8  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO custom_equipment_request
+    -> (request_id, user_id, subcategory_id, required_name,
+    -> required_specification, length_cm, width_cm, height_cm,
+    -> weight_kg, max_budget, notes, request_date, status)
+    -> VALUES
+    -> (1, 3, 1,
+    ->  'Commercial Treadmill',
+    ->  'Minimum 4 HP motor, minimum 18 km/h speed, suitable for heavy gym usage',
+    ->  220, 100, 160, 180, 450000,
+    ->  'Need 10 treadmills for new commercial gym',
+    ->  '2026-03-10', 'Completed'),
+    ->
+    -> (2, 6, 4,
+    ->  'Leg Press Machine',
+    ->  'Heavy duty leg press with minimum 400 kg capacity',
+    ->  230, 130, 160, 400, 300000,
+    ->  'Need equipment for a new premium gym',
+    ->  '2026-03-12', 'Processing'),
+    ->
+    -> (3, 3, 8,
+    ->  'Power Rack',
+    ->  'Commercial power rack with adjustable safety bars',
+    ->  180, 160, 240, 250, 120000,
+    ->  'Need 5 racks',
+    ->  '2026-03-15', 'Pending');
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO store
+    -> (store_id, store_name, address_line1, address_line2,
+    -> city, state, pincode, phone, email, latitude, longitude)
+    -> VALUES
+    -> (1, 'Fitness Hub Mumbai', '100 Andheri Road', 'Andheri West',
+    -> 'Mumbai', 'Maharashtra', '400058', '02240010001',
+    -> 'mumbai@fitnesshub.com', 19.136400, 72.829600),
+    ->
+    -> (2, 'Fitness Hub Bangalore', '55 Koramangala Main Road', 'Koramangala',
+    -> 'Bangalore', 'Karnataka', '560034', '08040010002',
+    -> 'bangalore@fitnesshub.com', 12.935200, 77.624500),
+    ->
+    -> (3, 'Fitness Hub Delhi', '20 Nehru Place', 'Nehru Place',
+    -> 'Delhi', 'Delhi', '110019', '01140010003',
+    -> 'delhi@fitnesshub.com', 28.549400, 77.250100),
+    ->
+    -> (4, 'Fitness Hub Pune', '44 FC Road', 'Shivajinagar',
+    -> 'Pune', 'Maharashtra', '411005', '02040010004',
+    -> 'pune@fitnesshub.com', 18.523600, 73.847800);
+Query OK, 4 rows affected (0.01 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO staff
+    -> (staff_id, store_id, name, designation, phone, email, hire_date, status)
+    -> VALUES
+    -> (1, 1, 'Amit Kumar', 'Store Manager', '9000000001', 'amit@fitnesshub.com', '2024-01-10', 'Active'),
+    -> (2, 1, 'Rohan Patil', 'Sales Executive', '9000000002', 'rohan@fitnesshub.com', '2025-02-15', 'Active'),
+    -> (3, 2, 'Meera Nair', 'Store Manager', '9000000003', 'meera@fitnesshub.com', '2024-05-10', 'Active'),
+    -> (4, 2, 'Vivek Rao', 'Trainer', '9000000004', 'vivek@fitnesshub.com', '2025-01-15', 'Active'),
+    -> (5, 3, 'Sanjay Gupta', 'Store Manager', '9000000005', 'sanjay@fitnesshub.com', '2024-07-20', 'Active'),
+    -> (6, 4, 'Pooja Deshmukh', 'Sales Executive', '9000000006', 'pooja@fitnesshub.com', '2025-03-01', 'Active');
+Query OK, 6 rows affected (0.01 sec)
+Records: 6  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO workout_zone
+    -> (zone_id, store_id, zone_name, description)
+    -> VALUES
+    -> (1, 1, 'Cardio Zone', 'Area for testing treadmills, bikes and ellipticals'),
+    -> (2, 1, 'Strength Zone', 'Area for testing strength equipment'),
+    -> (3, 2, 'Cardio Zone', 'Cardio equipment testing area'),
+    -> (4, 2, 'Functional Zone', 'Power racks and functional training'),
+    -> (5, 3, 'Cardio Zone', 'Cardio equipment testing area'),
+    -> (6, 4, 'Strength Zone', 'Strength and free weight testing area');
+Query OK, 6 rows affected (0.01 sec)
+Records: 6  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO equipment_available
+    -> (available_id, zone_id, variant_id, quantity_available)
+    -> VALUES
+    -> (1, 1, 1, 2),
+    -> (2, 1, 3, 3),
+    -> (3, 1, 4, 2),
+    -> (4, 2, 6, 1),
+    -> (5, 2, 9, 2),
+    -> (6, 3, 2, 2),
+    -> (7, 3, 5, 1),
+    -> (8, 4, 9, 2),
+    -> (9, 4, 10, 1),
+    -> (10, 5, 1, 1),
+    -> (11, 6, 7, 5),
+    -> (12, 6, 8, 3);
+Query OK, 12 rows affected (0.01 sec)
+Records: 12  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO workout_session
+    -> (session_id, user_id, store_id, zone_id,
+    -> start_time, end_time, calories_burned, rating, feedback)
+    -> VALUES
+    -> (1, 1, 1, 1,
+    -> '2026-03-20 10:00:00',
+    -> '2026-03-20 10:30:00',
+    -> 250, 5,
+    -> 'Very smooth treadmill experience'),
+    ->
+    -> (2, 2, 2, 3,
+    -> '2026-03-21 16:00:00',
+    -> '2026-03-21 16:25:00',
+    -> 180, 4,
+    -> 'Good resistance and comfortable seat'),
+    ->
+    -> (3, 5, 3, 5,
+    -> '2026-03-22 11:00:00',
+    -> '2026-03-22 11:30:00',
+    -> 270, 5,
+    -> 'Excellent treadmill performance'),
+    ->
+    -> (4, 7, 4, 4,
+    -> '2026-03-23 17:00:00',
+    -> '2026-03-23 17:45:00',
+    -> 150, 5,
+    -> 'Power rack is very stable');
+Query OK, 4 rows affected (0.01 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO orders
+    -> (order_id, user_id, store_id, order_type,
+    -> order_date, order_status, total_amount)
+    -> VALUES
+    -> (1, 1, NULL, 'Online',
+    -> '2026-03-20 12:00:00', 'Delivered', 399000),
+    ->
+    -> (2, 2, 2, 'Offline',
+    -> '2026-03-21 18:00:00', 'Completed', 159000),
+    ->
+    -> (3, 3, NULL, 'Online',
+    -> '2026-03-22 14:00:00', 'Processing', 425000),
+    ->
+    -> (4, 5, 3, 'Offline',
+    -> '2026-03-23 13:00:00', 'Completed', 7500),
+    ->
+    -> (5, 7, 4, 'Offline',
+    -> '2026-03-24 16:00:00', 'Completed', 79000);
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO order_item
+    -> (order_item_id, order_id, variant_id, quantity,
+    -> unit_price, discount, total_price)
+    -> VALUES
+    -> (1, 1, 2, 1, 399000, 21000, 399000),
+    -> (2, 2, 4, 1, 159000, 16000, 159000),
+    -> (3, 3, 1, 1, 425000, 25000, 425000),
+    -> (4, 4, 7, 1, 7500, 1000, 7500),
+    -> (5, 5, 9, 1, 79000, 6000, 79000);
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO payment
+    -> (payment_id, order_id, payment_date, amount,
+    -> payment_method, payment_status, transaction_id)
+    -> VALUES
+    -> (1, 1, '2026-03-20 12:05:00', 399000,
+    -> 'UPI', 'Successful', 'TXN100001'),
+    ->
+    -> (2, 2, '2026-03-21 18:05:00', 159000,
+    -> 'Card', 'Successful', 'TXN100002'),
+    ->
+    -> (3, 3, '2026-03-22 14:05:00', 425000,
+    -> 'Net Banking', 'Successful', 'TXN100003'),
+    ->
+    -> (4, 4, '2026-03-23 13:05:00', 7500,
+    -> 'Cash', 'Successful', 'TXN100004'),
+    ->
+    -> (5, 5, '2026-03-24 16:05:00', 79000,
+    -> 'UPI', 'Successful', 'TXN100005');
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO inventory
+    -> (inventory_id, store_id, variant_id,
+    -> stock_quantity, reserved_quantity, reorder_level)
+    -> VALUES
+    -> (1, 1, 1, 5, 1, 2),
+    -> (2, 1, 2, 8, 1, 3),
+    -> (3, 1, 3, 6, 0, 2),
+    -> (4, 2, 4, 4, 1, 2),
+    -> (5, 2, 5, 3, 0, 2),
+    -> (6, 2, 9, 5, 1, 2),
+    -> (7, 3, 1, 3, 0, 2),
+    -> (8, 3, 7, 25, 3, 10),
+    -> (9, 4, 6, 2, 0, 2),
+    -> (10, 4, 8, 15, 2, 5),
+    -> (11, 4, 9, 4, 1, 2),
+    -> (12, 1, 11, 50, 5, 10);
+Query OK, 12 rows affected (0.01 sec)
+Records: 12  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO supplier
+    -> (supplier_id, supplier_name, contact_person, phone,
+    -> email, address, country)
+    -> VALUES
+    -> (1, 'Fitness Equipment India Pvt Ltd', 'Raj Malhotra',
+    -> '9111111111', 'sales@fei.com', 'Mumbai Industrial Area', 'India'),
+    ->
+    -> (2, 'Global Fitness Machines', 'David Wilson',
+    -> '9222222222', 'sales@gfm.com', 'New Delhi Industrial Estate', 'India'),
+    ->
+    -> (3, 'Pro Gym Supplies', 'Aakash Verma',
+    -> '9333333333', 'info@progym.com', 'Bangalore Industrial Area', 'India'),
+    ->
+    -> (4, 'SportsTech Manufacturing', 'Neeraj Shah',
+    -> '9444444444', 'sales@sportstech.com', 'Pune Industrial Area', 'India');
+Query OK, 4 rows affected (0.01 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO purchase_order
+    -> (po_id, supplier_id, store_id, po_date, status, total_amount)
+    -> VALUES
+    -> (1, 1, 1, '2026-03-01', 'Received', 1200000),
+    -> (2, 2, 2, '2026-03-05', 'Received', 795000),
+    -> (3, 3, 3, '2026-03-10', 'Processing', 600000),
+    -> (4, 4, 4, '2026-03-15', 'Approved', 450000);
+Query OK, 4 rows affected (0.01 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO purchase_order_item
+    -> (po_item_id, po_id, variant_id, quantity,
+    -> unit_price, total_price)
+    -> VALUES
+    -> (1, 1, 1, 2, 425000, 850000),
+    -> (2, 1, 3, 1, 259000, 259000),
+    -> (3, 1, 11, 50, 1999, 99950),
+    ->
+    -> (4, 2, 4, 3, 159000, 477000),
+    -> (5, 2, 5, 1, 205000, 205000),
+    ->
+    -> (6, 3, 7, 30, 7500, 225000),
+    -> (7, 3, 8, 20, 10500, 210000),
+    ->
+    -> (8, 4, 9, 3, 79000, 237000),
+    -> (9, 4, 10, 2, 99900, 199800);
+Query OK, 9 rows affected (0.01 sec)
+Records: 9  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO review
+    -> (review_id, user_id, variant_id, rating, review_text, review_date)
+    -> VALUES
+    -> (1, 1, 2, 5,
+    -> 'Excellent treadmill for commercial gym use. Very smooth.',
+    -> '2026-03-25 10:00:00'),
+    ->
+    -> (2, 2, 4, 4,
+    -> 'Good exercise bike with comfortable seating.',
+    -> '2026-03-25 12:00:00'),
+    ->
+    -> (3, 5, 7, 5,
+    -> 'Excellent dumbbells and very durable.',
+    -> '2026-03-26 09:00:00'),
+    ->
+    -> (4, 7, 9, 5,
+    -> 'Very stable power rack. Good for heavy training.',
+    -> '2026-03-26 14:00:00'),
+    ->
+    -> (5, 3, 1, 5,
+    -> 'Excellent commercial treadmill.',
+    -> '2026-03-27 11:00:00');
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO wishlist
+    -> (wishlist_id, user_id, variant_id, added_date)
+    -> VALUES
+    -> (1, 1, 1, '2026-03-18 10:00:00'),
+    -> (2, 1, 9, '2026-03-18 10:05:00'),
+    -> (3, 2, 5, '2026-03-19 11:00:00'),
+    -> (4, 3, 6, '2026-03-20 14:00:00'),
+    -> (5, 5, 10, '2026-03-21 16:00:00'),
+    -> (6, 7, 3, '2026-03-22 13:00:00');
+Query OK, 6 rows affected (0.01 sec)
+Records: 6  Duplicates: 0  Warnings: 0
+
+
+
+===========================================================================================================================================================================================================================================
+
+
+
+mysql>=============================
+mysql> -- DISPLAY ALL THE TABLES --
+mysql>=============================
+mysql> SELECT * FROM addresses;
++------------+---------+--------------+------------------+----------------+-----------+-------------+---------+---------+------------+
+| address_id | user_id | address_type | address_line1    | address_line2  | city      | state       | pincode | country | phone      |
++------------+---------+--------------+------------------+----------------+-----------+-------------+---------+---------+------------+
+|          1 |       1 | Home         | 12 MG Road       | Near City Mall | Mumbai    | Maharashtra | 400001  | India   | 9876543210 |
+|          2 |       1 | Office       | 45 Business Park | Andheri East   | Mumbai    | Maharashtra | 400069  | India   | 9876543210 |
+|          3 |       2 | Home         | 22 Park Street   | Salt Lake      | Kolkata   | West Bengal | 700091  | India   | 9876543211 |
+|          4 |       3 | Gym          | 100 Fitness Road | Koramangala    | Bangalore | Karnataka   | 560034  | India   | 9876543212 |
+|          5 |       5 | Home         | 78 Civil Lines   | Main Road      | Delhi     | Delhi       | 110054  | India   | 9876543214 |
+|          6 |       6 | Gym          | 55 FC Road       | Shivajinagar   | Pune      | Maharashtra | 411005  | India   | 9876543215 |
++------------+---------+--------------+------------------+----------------+-----------+-------------+---------+---------+------------+
+6 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM brand;
++----------+--------------+---------+---------------------------------+
+| brand_id | brand_name   | country | website                         |
++----------+--------------+---------+---------------------------------+
+|        1 | Life Fitness | USA     | https://www.lifefitness.com     |
+|        2 | Technogym    | Italy   | https://www.technogym.com       |
+|        3 | Nautilus     | USA     | https://www.nautilus.com        |
+|        4 | PowerMax     | India   | https://www.powermaxfitness.net |
+|        5 | Decathlon    | France  | https://www.decathlon.in        |
+|        6 | FitLine      | India   | https://www.fitline.com         |
++----------+--------------+---------+---------------------------------+
+6 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM custom_equipment_request;
++------------+---------+----------------+----------------------+-------------------------------------------------------------------------+-----------+----------+-----------+-----------+------------+-------------------------------------------+--------------+------------+
+| request_id | user_id | subcategory_id | required_name        | required_specification                                                  | length_cm | width_cm | height_cm | weight_kg | max_budget | notes                                     | request_date | status     |
++------------+---------+----------------+----------------------+-------------------------------------------------------------------------+-----------+----------+-----------+-----------+------------+-------------------------------------------+--------------+------------+
+|          1 |       3 |              1 | Commercial Treadmill | Minimum 4 HP motor, minimum 18 km/h speed, suitable for heavy gym usage |    220.00 |   100.00 |    160.00 |    180.00 |  450000.00 | Need 10 treadmills for new commercial gym | 2026-03-10   | Completed  |
+|          2 |       6 |              4 | Leg Press Machine    | Heavy duty leg press with minimum 400 kg capacity                       |    230.00 |   130.00 |    160.00 |    400.00 |  300000.00 | Need equipment for a new premium gym      | 2026-03-12   | Processing |
+|          3 |       3 |              8 | Power Rack           | Commercial power rack with adjustable safety bars                       |    180.00 |   160.00 |    240.00 |    250.00 |  120000.00 | Need 5 racks                              | 2026-03-15   | Pending    |
++------------+---------+----------------+----------------------+-------------------------------------------------------------------------+-----------+----------+-----------+-----------+------------+-------------------------------------------+--------------+------------+
+3 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM equipment;
++--------------+----------------+----------+--------------------------+---------------------------------------------+---------------------------------------------------+-----------------+--------+
+| equipment_id | subcategory_id | brand_id | equipment_name           | description                                 | specifications                                    | is_customizable | status |
++--------------+----------------+----------+--------------------------+---------------------------------------------+---------------------------------------------------+-----------------+--------+
+|            1 |              1 |        1 | Commercial Treadmill X1  | Heavy-duty commercial treadmill for gyms    | AC Motor, 20 km/h maximum speed, shock absorption |               0 | Active |
+|            2 |              1 |        4 | PowerRun Treadmill P500  | Commercial treadmill for medium-sized gyms  | 4 HP motor, 18 km/h speed                         |               0 | Active |
+|            3 |              2 |        2 | Technogym Exercise Bike  | Professional indoor exercise bike           | Magnetic resistance, digital console              |               0 | Active |
+|            4 |              3 |        3 | Nautilus Elliptical E200 | Commercial elliptical trainer               | Adjustable resistance, digital display            |               0 | Active |
+|            5 |              4 |        2 | Leg Press Machine        | Commercial leg press machine                | Heavy-duty steel frame                            |               0 | Active |
+|            6 |              6 |        5 | Adjustable Dumbbell Set  | Adjustable dumbbell system                  | Multiple weight settings                          |               1 | Active |
+|            7 |              8 |        6 | Commercial Power Rack    | Heavy-duty power rack for strength training | Steel frame, adjustable safety bars               |               1 | Active |
+|            8 |             10 |        5 | Premium Yoga Mat         | High-density yoga and exercise mat          | Non-slip surface                                  |               0 | Active |
++--------------+----------------+----------+--------------------------+---------------------------------------------+---------------------------------------------------+-----------------+--------+
+8 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM equipment_available;
++--------------+---------+------------+--------------------+
+| available_id | zone_id | variant_id | quantity_available |
++--------------+---------+------------+--------------------+
+|            1 |       1 |          1 |                  2 |
+|            2 |       1 |          3 |                  3 |
+|            3 |       1 |          4 |                  2 |
+|            4 |       2 |          6 |                  1 |
+|            5 |       2 |          9 |                  2 |
+|            6 |       3 |          2 |                  2 |
+|            7 |       3 |          5 |                  1 |
+|            8 |       4 |          9 |                  2 |
+|            9 |       4 |         10 |                  1 |
+|           10 |       5 |          1 |                  1 |
+|           11 |       6 |          7 |                  5 |
+|           12 |       6 |          8 |                  3 |
++--------------+---------+------------+--------------------+
+12 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM equipment_category;
++-------------+---------------------+----------------------------------------------------+-----------------+--------------------+
+| category_id | name                | description                                        | image_url       | parent_category_id |
++-------------+---------------------+----------------------------------------------------+-----------------+--------------------+
+|           1 | Cardio Equipment    | Equipment used for cardiovascular training         | cardio.jpg      |               NULL |
+|           2 | Strength Equipment  | Machines used for strength and resistance training | strength.jpg    |               NULL |
+|           3 | Free Weights        | Free weight training equipment                     | freeweights.jpg |               NULL |
+|           4 | Functional Training | Equipment for functional and cross training        | functional.jpg  |               NULL |
+|           5 | Yoga & Flexibility  | Equipment for yoga, stretching and flexibility     | yoga.jpg        |               NULL |
++-------------+---------------------+----------------------------------------------------+-----------------+--------------------+
+5 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM equipment_dimension;
++--------------+--------------+-----------+----------+-----------+-----------+--------------------+
+| dimension_id | equipment_id | length_cm | width_cm | height_cm | weight_kg | max_user_weight_kg |
++--------------+--------------+-----------+----------+-----------+-----------+--------------------+
+|            1 |            1 |    220.00 |    95.00 |    155.00 |    180.00 |             180.00 |
+|            2 |            2 |    215.00 |    90.00 |    150.00 |    170.00 |             150.00 |
+|            3 |            3 |    120.00 |    60.00 |    140.00 |     65.00 |             150.00 |
+|            4 |            4 |    210.00 |    75.00 |    165.00 |     95.00 |             160.00 |
+|            5 |            5 |    220.00 |   120.00 |    150.00 |    350.00 |             200.00 |
+|            6 |            6 |     45.00 |    22.00 |     22.00 |     30.00 |             150.00 |
+|            7 |            7 |    180.00 |   160.00 |    240.00 |    220.00 |             200.00 |
+|            8 |            8 |    183.00 |    61.00 |      0.80 |      2.00 |             120.00 |
++--------------+--------------+-----------+----------+-----------+-----------+--------------------+
+8 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM equipment_image;
++----------+--------------+--------------------------------+------------+
+| image_id | equipment_id | image_url                      | is_primary |
++----------+--------------+--------------------------------+------------+
+|        1 |            1 | images/treadmill_x1_front.jpg  |          1 |
+|        2 |            1 | images/treadmill_x1_side.jpg   |          0 |
+|        3 |            2 | images/p500_front.jpg          |          1 |
+|        4 |            3 | images/technogym_bike.jpg      |          1 |
+|        5 |            4 | images/elliptical_e200.jpg     |          1 |
+|        6 |            5 | images/leg_press.jpg           |          1 |
+|        7 |            6 | images/adjustable_dumbbell.jpg |          1 |
+|        8 |            7 | images/power_rack.jpg          |          1 |
+|        9 |            8 | images/yoga_mat.jpg            |          1 |
++----------+--------------+--------------------------------+------------+
+9 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM equipment_specification;
++---------+--------------+---------------------+--------------+--------+
+| spec_id | equipment_id | spec_name           | spec_value   | unit   |
++---------+--------------+---------------------+--------------+--------+
+|       1 |            1 | Motor Power         | 5.0          | HP     |
+|       2 |            1 | Maximum Speed       | 20           | km/h   |
+|       3 |            1 | Maximum User Weight | 180          | kg     |
+|       4 |            2 | Motor Power         | 4.0          | HP     |
+|       5 |            2 | Maximum Speed       | 18           | km/h   |
+|       6 |            2 | Maximum User Weight | 150          | kg     |
+|       7 |            3 | Resistance Levels   | 32           | Levels |
+|       8 |            3 | Display             | Touch Screen | NULL   |
+|       9 |            4 | Resistance Levels   | 25           | Levels |
+|      10 |            5 | Maximum Load        | 400          | kg     |
+|      11 |            7 | Maximum Load        | 500          | kg     |
+|      12 |            8 | Thickness           | 8            | mm     |
++---------+--------------+---------------------+--------------+--------+
+12 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM equipment_subcategory;
++----------------+-------------+---------------------+-------------------------------------+-------------------+
+| subcategory_id | category_id | name                | description                         | image_url         |
++----------------+-------------+---------------------+-------------------------------------+-------------------+
+|              1 |           1 | Treadmills          | Motorized and commercial treadmills | treadmill.jpg     |
+|              2 |           1 | Exercise Bikes      | Stationary and spinning bikes       | bike.jpg          |
+|              3 |           1 | Elliptical Trainers | Low impact cardio machines          | elliptical.jpg    |
+|              4 |           2 | Weight Machines     | Machines for resistance training    | weightmachine.jpg |
+|              5 |           2 | Cable Machines      | Cable-based strength equipment      | cable.jpg         |
+|              6 |           3 | Dumbbells           | Fixed and adjustable dumbbells      | dumbbells.jpg     |
+|              7 |           3 | Barbells            | Olympic and standard barbells       | barbells.jpg      |
+|              8 |           4 | Power Racks         | Squat and power training racks      | rack.jpg          |
+|              9 |           4 | Kettlebells         | Kettlebell training equipment       | kettlebell.jpg    |
+|             10 |           5 | Yoga Mats           | Exercise and yoga mats              | yogamat.jpg       |
++----------------+-------------+---------------------+-------------------------------------+-------------------+
+10 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM inventory;
++--------------+----------+------------+----------------+-------------------+---------------+---------------------+
+| inventory_id | store_id | variant_id | stock_quantity | reserved_quantity | reorder_level | last_updated        |
++--------------+----------+------------+----------------+-------------------+---------------+---------------------+
+|            1 |        1 |          1 |              5 |                 1 |             2 | 2026-08-14 19:06:22 |
+|            2 |        1 |          2 |              8 |                 1 |             3 | 2026-08-14 19:06:22 |
+|            3 |        1 |          3 |              6 |                 0 |             2 | 2026-08-14 19:06:22 |
+|            4 |        2 |          4 |              4 |                 1 |             2 | 2026-08-14 19:06:22 |
+|            5 |        2 |          5 |              3 |                 0 |             2 | 2026-08-14 19:06:22 |
+|            6 |        2 |          9 |              5 |                 1 |             2 | 2026-08-14 19:06:22 |
+|            7 |        3 |          1 |              3 |                 0 |             2 | 2026-08-14 19:06:22 |
+|            8 |        3 |          7 |             25 |                 3 |            10 | 2026-08-14 19:06:22 |
+|            9 |        4 |          6 |              2 |                 0 |             2 | 2026-08-14 19:06:22 |
+|           10 |        4 |          8 |             15 |                 2 |             5 | 2026-08-14 19:06:22 |
+|           11 |        4 |          9 |              4 |                 1 |             2 | 2026-08-14 19:06:22 |
+|           12 |        1 |         11 |             50 |                 5 |            10 | 2026-08-14 19:06:22 |
++--------------+----------+------------+----------------+-------------------+---------------+---------------------+
+12 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM order_item;
++---------------+----------+------------+----------+------------+----------+-------------+
+| order_item_id | order_id | variant_id | quantity | unit_price | discount | total_price |
++---------------+----------+------------+----------+------------+----------+-------------+
+|             1 |        1 |          2 |        1 |  399000.00 | 21000.00 |   399000.00 |
+|             2 |        2 |          4 |        1 |  159000.00 | 16000.00 |   159000.00 |
+|             3 |        3 |          1 |        1 |  425000.00 | 25000.00 |   425000.00 |
+|             4 |        4 |          7 |        1 |    7500.00 |  1000.00 |     7500.00 |
+|             5 |        5 |          9 |        1 |   79000.00 |  6000.00 |    79000.00 |
++---------------+----------+------------+----------+------------+----------+-------------+
+5 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM orders;
++----------+---------+----------+------------+---------------------+--------------+--------------+
+| order_id | user_id | store_id | order_type | order_date          | order_status | total_amount |
++----------+---------+----------+------------+---------------------+--------------+--------------+
+|        1 |       1 |     NULL | Online     | 2026-03-20 12:00:00 | Delivered    |    399000.00 |
+|        2 |       2 |        2 | Offline    | 2026-03-21 18:00:00 | Completed    |    159000.00 |
+|        3 |       3 |     NULL | Online     | 2026-03-22 14:00:00 | Processing   |    425000.00 |
+|        4 |       5 |        3 | Offline    | 2026-03-23 13:00:00 | Completed    |      7500.00 |
+|        5 |       7 |        4 | Offline    | 2026-03-24 16:00:00 | Completed    |     79000.00 |
++----------+---------+----------+------------+---------------------+--------------+--------------+
+5 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM payment;
++------------+----------+---------------------+-----------+----------------+----------------+----------------+
+| payment_id | order_id | payment_date        | amount    | payment_method | payment_status | transaction_id |
++------------+----------+---------------------+-----------+----------------+----------------+----------------+
+|          1 |        1 | 2026-03-20 12:05:00 | 399000.00 | UPI            | Successful     | TXN100001      |
+|          2 |        2 | 2026-03-21 18:05:00 | 159000.00 | Card           | Successful     | TXN100002      |
+|          3 |        3 | 2026-03-22 14:05:00 | 425000.00 | Net Banking    | Successful     | TXN100003      |
+|          4 |        4 | 2026-03-23 13:05:00 |   7500.00 | Cash           | Successful     | TXN100004      |
+|          5 |        5 | 2026-03-24 16:05:00 |  79000.00 | UPI            | Successful     | TXN100005      |
++------------+----------+---------------------+-----------+----------------+----------------+----------------+
+5 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM product_variant;
++------------+--------------+---------------------+----------+-------+-----------+-----------+----------+-----------+-----------+-----------+----------------+-----------------+---------------+-----------+
+| variant_id | equipment_id | variant_name        | size     | color | material  | length_cm | width_cm | height_cm | weight_kg | price     | discount_price | warranty_months | sku_code      | status    |
++------------+--------------+---------------------+----------+-------+-----------+-----------+----------+-----------+-----------+-----------+----------------+-----------------+---------------+-----------+
+|          1 |            1 | X1 Standard         | Standard | Black | Steel     |    220.00 |    95.00 |    155.00 |    180.00 | 450000.00 |      425000.00 |              36 | TREAD-X1-STD  | Available |
+|          2 |            1 | X1 Compact          | Compact  | Black | Steel     |    200.00 |    85.00 |    150.00 |    165.00 | 420000.00 |      399000.00 |              36 | TREAD-X1-CMP  | Available |
+|          3 |            2 | P500 Commercial     | Large    | Black | Steel     |    215.00 |    90.00 |    150.00 |    170.00 | 280000.00 |      259000.00 |              24 | P500-COM      | Available |
+|          4 |            3 | Technogym Bike Pro  | Standard | Black | Steel     |    120.00 |    60.00 |    140.00 |     65.00 | 175000.00 |      159000.00 |              24 | TECH-BIKE-PRO | Available |
+|          5 |            4 | E200 Elliptical     | Standard | Grey  | Steel     |    210.00 |    75.00 |    165.00 |     95.00 | 220000.00 |      205000.00 |              24 | NAU-E200      | Available |
+|          6 |            5 | Leg Press 500       | Large    | Black | Steel     |    220.00 |   120.00 |    150.00 |    350.00 | 250000.00 |      235000.00 |              36 | LEG-500       | Available |
+|          7 |            6 | Dumbbell 20KG       | 20 KG    | Black | Cast Iron |     40.00 |    20.00 |     20.00 |     20.00 |   8500.00 |        7500.00 |              12 | DB-20KG       | Available |
+|          8 |            6 | Dumbbell 30KG       | 30 KG    | Black | Cast Iron |     45.00 |    22.00 |     22.00 |     30.00 |  12000.00 |       10500.00 |              12 | DB-30KG       | Available |
+|          9 |            7 | Power Rack Standard | Standard | Black | Steel     |    150.00 |   140.00 |    230.00 |    180.00 |  85000.00 |       79000.00 |              24 | RACK-STD      | Available |
+|         10 |            7 | Power Rack XL       | XL       | Black | Steel     |    180.00 |   160.00 |    240.00 |    220.00 | 110000.00 |       99900.00 |              24 | RACK-XL       | Available |
+|         11 |            8 | Yoga Mat 8MM        | Standard | Blue  | PVC       |    183.00 |    61.00 |      0.80 |      2.00 |   2500.00 |        1999.00 |               6 | YOGA-8MM      | Available |
++------------+--------------+---------------------+----------+-------+-----------+-----------+----------+-----------+-----------+-----------+----------------+-----------------+---------------+-----------+
+11 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM purchase_order;
++-------+-------------+----------+------------+------------+--------------+
+| po_id | supplier_id | store_id | po_date    | status     | total_amount |
++-------+-------------+----------+------------+------------+--------------+
+|     1 |           1 |        1 | 2026-03-01 | Received   |   1200000.00 |
+|     2 |           2 |        2 | 2026-03-05 | Received   |    795000.00 |
+|     3 |           3 |        3 | 2026-03-10 | Processing |    600000.00 |
+|     4 |           4 |        4 | 2026-03-15 | Approved   |    450000.00 |
++-------+-------------+----------+------------+------------+--------------+
+4 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM purchase_order_item;
++------------+-------+------------+----------+------------+-------------+
+| po_item_id | po_id | variant_id | quantity | unit_price | total_price |
++------------+-------+------------+----------+------------+-------------+
+|          1 |     1 |          1 |        2 |  425000.00 |   850000.00 |
+|          2 |     1 |          3 |        1 |  259000.00 |   259000.00 |
+|          3 |     1 |         11 |       50 |    1999.00 |    99950.00 |
+|          4 |     2 |          4 |        3 |  159000.00 |   477000.00 |
+|          5 |     2 |          5 |        1 |  205000.00 |   205000.00 |
+|          6 |     3 |          7 |       30 |    7500.00 |   225000.00 |
+|          7 |     3 |          8 |       20 |   10500.00 |   210000.00 |
+|          8 |     4 |          9 |        3 |   79000.00 |   237000.00 |
+|          9 |     4 |         10 |        2 |   99900.00 |   199800.00 |
++------------+-------+------------+----------+------------+-------------+
+9 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM review;
++-----------+---------+------------+--------+----------------------------------------------------------+---------------------+
+| review_id | user_id | variant_id | rating | review_text                                              | review_date         |
++-----------+---------+------------+--------+----------------------------------------------------------+---------------------+
+|         1 |       1 |          2 |      5 | Excellent treadmill for commercial gym use. Very smooth. | 2026-03-25 10:00:00 |
+|         2 |       2 |          4 |      4 | Good exercise bike with comfortable seating.             | 2026-03-25 12:00:00 |
+|         3 |       5 |          7 |      5 | Excellent dumbbells and very durable.                    | 2026-03-26 09:00:00 |
+|         4 |       7 |          9 |      5 | Very stable power rack. Good for heavy training.         | 2026-03-26 14:00:00 |
+|         5 |       3 |          1 |      5 | Excellent commercial treadmill.                          | 2026-03-27 11:00:00 |
++-----------+---------+------------+--------+----------------------------------------------------------+---------------------+
+5 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM staff;
++----------+----------+----------------+-----------------+------------+-----------------------+------------+--------+
+| staff_id | store_id | name           | designation     | phone      | email                 | hire_date  | status |
++----------+----------+----------------+-----------------+------------+-----------------------+------------+--------+
+|        1 |        1 | Amit Kumar     | Store Manager   | 9000000001 | amit@fitnesshub.com   | 2024-01-10 | Active |
+|        2 |        1 | Rohan Patil    | Sales Executive | 9000000002 | rohan@fitnesshub.com  | 2025-02-15 | Active |
+|        3 |        2 | Meera Nair     | Store Manager   | 9000000003 | meera@fitnesshub.com  | 2024-05-10 | Active |
+|        4 |        2 | Vivek Rao      | Trainer         | 9000000004 | vivek@fitnesshub.com  | 2025-01-15 | Active |
+|        5 |        3 | Sanjay Gupta   | Store Manager   | 9000000005 | sanjay@fitnesshub.com | 2024-07-20 | Active |
+|        6 |        4 | Pooja Deshmukh | Sales Executive | 9000000006 | pooja@fitnesshub.com  | 2025-03-01 | Active |
++----------+----------+----------------+-----------------+------------+-----------------------+------------+--------+
+6 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM store;
++----------+-----------------------+--------------------------+---------------+-----------+-------------+---------+-------------+--------------------------+-----------+-----------+
+| store_id | store_name            | address_line1            | address_line2 | city      | state       | pincode | phone       | email                    | latitude  | longitude |
++----------+-----------------------+--------------------------+---------------+-----------+-------------+---------+-------------+--------------------------+-----------+-----------+
+|        1 | Fitness Hub Mumbai    | 100 Andheri Road         | Andheri West  | Mumbai    | Maharashtra | 400058  | 02240010001 | mumbai@fitnesshub.com    | 19.136400 | 72.829600 |
+|        2 | Fitness Hub Bangalore | 55 Koramangala Main Road | Koramangala   | Bangalore | Karnataka   | 560034  | 08040010002 | bangalore@fitnesshub.com | 12.935200 | 77.624500 |
+|        3 | Fitness Hub Delhi     | 20 Nehru Place           | Nehru Place   | Delhi     | Delhi       | 110019  | 01140010003 | delhi@fitnesshub.com     | 28.549400 | 77.250100 |
+|        4 | Fitness Hub Pune      | 44 FC Road               | Shivajinagar  | Pune      | Maharashtra | 411005  | 02040010004 | pune@fitnesshub.com      | 18.523600 | 73.847800 |
++----------+-----------------------+--------------------------+---------------+-----------+-------------+---------+-------------+--------------------------+-----------+-----------+
+4 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM supplier;
++-------------+---------------------------------+----------------+------------+----------------------+-----------------------------+---------+
+| supplier_id | supplier_name                   | contact_person | phone      | email                | address                     | country |
++-------------+---------------------------------+----------------+------------+----------------------+-----------------------------+---------+
+|           1 | Fitness Equipment India Pvt Ltd | Raj Malhotra   | 9111111111 | sales@fei.com        | Mumbai Industrial Area      | India   |
+|           2 | Global Fitness Machines         | David Wilson   | 9222222222 | sales@gfm.com        | New Delhi Industrial Estate | India   |
+|           3 | Pro Gym Supplies                | Aakash Verma   | 9333333333 | info@progym.com      | Bangalore Industrial Area   | India   |
+|           4 | SportsTech Manufacturing        | Neeraj Shah    | 9444444444 | sales@sportstech.com | Pune Industrial Area        | India   |
++-------------+---------------------------------+----------------+------------+----------------------+-----------------------------+---------+
+4 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM users;
++---------+--------------+------------------+------------+----------+-----------+-------------------+--------+
+| user_id | name         | email            | phone      | password | role      | registration_date | status |
++---------+--------------+------------------+------------+----------+-----------+-------------------+--------+
+|       1 | Rahul Sharma | rahul@gmail.com  | 9876543210 | pass123  | Customer  | 2026-01-10        | Active |
+|       2 | Priya Patel  | priya@gmail.com  | 9876543211 | pass123  | Customer  | 2026-01-15        | Active |
+|       3 | Arjun Mehta  | arjun@gmail.com  | 9876543212 | pass123  | Gym Owner | 2026-02-01        | Active |
+|       4 | Sneha Reddy  | sneha@gmail.com  | 9876543213 | pass123  | Trainer   | 2026-02-05        | Active |
+|       5 | Vikram Singh | vikram@gmail.com | 9876543214 | pass123  | Customer  | 2026-02-10        | Active |
+|       6 | Ananya Rao   | ananya@gmail.com | 9876543215 | pass123  | Gym Owner | 2026-02-15        | Active |
+|       7 | Karan Shah   | karan@gmail.com  | 9876543216 | pass123  | Customer  | 2026-03-01        | Active |
+|       8 | Neha Joshi   | neha@gmail.com   | 9876543217 | pass123  | Customer  | 2026-03-05        | Active |
++---------+--------------+------------------+------------+----------+-----------+-------------------+--------+
+8 rows in set (0.01 sec)
+
+mysql>
+mysql> SELECT * FROM wishlist;
++-------------+---------+------------+---------------------+
+| wishlist_id | user_id | variant_id | added_date          |
++-------------+---------+------------+---------------------+
+|           1 |       1 |          1 | 2026-03-18 10:00:00 |
+|           2 |       1 |          9 | 2026-03-18 10:05:00 |
+|           3 |       2 |          5 | 2026-03-19 11:00:00 |
+|           4 |       3 |          6 | 2026-03-20 14:00:00 |
+|           5 |       5 |         10 | 2026-03-21 16:00:00 |
+|           6 |       7 |          3 | 2026-03-22 13:00:00 |
++-------------+---------+------------+---------------------+
+6 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM workout_session;
++------------+---------+----------+---------+---------------------+---------------------+-----------------+--------+--------------------------------------+
+| session_id | user_id | store_id | zone_id | start_time          | end_time            | calories_burned | rating | feedback                             |
++------------+---------+----------+---------+---------------------+---------------------+-----------------+--------+--------------------------------------+
+|          1 |       1 |        1 |       1 | 2026-03-20 10:00:00 | 2026-03-20 10:30:00 |             250 |      5 | Very smooth treadmill experience     |
+|          2 |       2 |        2 |       3 | 2026-03-21 16:00:00 | 2026-03-21 16:25:00 |             180 |      4 | Good resistance and comfortable seat |
+|          3 |       5 |        3 |       5 | 2026-03-22 11:00:00 | 2026-03-22 11:30:00 |             270 |      5 | Excellent treadmill performance      |
+|          4 |       7 |        4 |       4 | 2026-03-23 17:00:00 | 2026-03-23 17:45:00 |             150 |      5 | Power rack is very stable            |
++------------+---------+----------+---------+---------------------+---------------------+-----------------+--------+--------------------------------------+
+4 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM workout_zone;
++---------+----------+-----------------+----------------------------------------------------+
+| zone_id | store_id | zone_name       | description                                        |
++---------+----------+-----------------+----------------------------------------------------+
+|       1 |        1 | Cardio Zone     | Area for testing treadmills, bikes and ellipticals |
+|       2 |        1 | Strength Zone   | Area for testing strength equipment                |
+|       3 |        2 | Cardio Zone     | Cardio equipment testing area                      |
+|       4 |        2 | Functional Zone | Power racks and functional training                |
+|       5 |        3 | Cardio Zone     | Cardio equipment testing area                      |
+|       6 |        4 | Strength Zone   | Strength and free weight testing area              |
++---------+----------+-----------------+----------------------------------------------------+
+6 rows in set (0.00 sec)
+
+
+
+===========================================================================================================================================================================================================================================
+
+
+
+mysql>=====================
+mysql> -- SMALL QUERIES --
+mysql>=====================
+mysql> -- Q1. Display all the users registered in the system
+mysql> SELECT *
+    -> FROM users;
++---------+--------------+------------------+------------+----------+-----------+-------------------+--------+
+| user_id | name         | email            | phone      | password | role      | registration_date | status |
++---------+--------------+------------------+------------+----------+-----------+-------------------+--------+
+|       1 | Rahul Sharma | rahul@gmail.com  | 9876543210 | pass123  | Customer  | 2026-01-10        | Active |
+|       2 | Priya Patel  | priya@gmail.com  | 9876543211 | pass123  | Customer  | 2026-01-15        | Active |
+|       3 | Arjun Mehta  | arjun@gmail.com  | 9876543212 | pass123  | Gym Owner | 2026-02-01        | Active |
+|       4 | Sneha Reddy  | sneha@gmail.com  | 9876543213 | pass123  | Trainer   | 2026-02-05        | Active |
+|       5 | Vikram Singh | vikram@gmail.com | 9876543214 | pass123  | Customer  | 2026-02-10        | Active |
+|       6 | Ananya Rao   | ananya@gmail.com | 9876543215 | pass123  | Gym Owner | 2026-02-15        | Active |
+|       7 | Karan Shah   | karan@gmail.com  | 9876543216 | pass123  | Customer  | 2026-03-01        | Active |
+|       8 | Neha Joshi   | neha@gmail.com   | 9876543217 | pass123  | Customer  | 2026-03-05        | Active |
++---------+--------------+------------------+------------+----------+-----------+-------------------+--------+
+8 rows in set (0.00 sec)
+
+mysql> -- Q2. Display the name and email of all customers.
+mysql> SELECT name, email
+    -> FROM users
+    -> WHERE role = 'Customer';
++--------------+------------------+
+| name         | email            |
++--------------+------------------+
+| Rahul Sharma | rahul@gmail.com  |
+| Priya Patel  | priya@gmail.com  |
+| Vikram Singh | vikram@gmail.com |
+| Karan Shah   | karan@gmail.com  |
+| Neha Joshi   | neha@gmail.com   |
++--------------+------------------+
+5 rows in set (0.00 sec)
+
+mysql> -- Q3. Display all equipment names in alphabetical order.
+mysql> SELECT equipment_name
+    -> FROM equipment
+    -> ORDER BY equipment_name ASC;
++--------------------------+
+| equipment_name           |
++--------------------------+
+| Adjustable Dumbbell Set  |
+| Commercial Power Rack    |
+| Commercial Treadmill X1  |
+| Leg Press Machine        |
+| Nautilus Elliptical E200 |
+| PowerRun Treadmill P500  |
+| Premium Yoga Mat         |
+| Technogym Exercise Bike  |
++--------------------------+
+8 rows in set (0.00 sec)
+
+mysql> -- Q4. Display the five cheapest equipment variants.
+mysql> SELECT variant_name, price
+    -> FROM product_variant
+    -> ORDER BY price ASC
+    -> LIMIT 5;
++---------------------+-----------+
+| variant_name        | price     |
++---------------------+-----------+
+| Yoga Mat 8MM        |   2500.00 |
+| Dumbbell 20KG       |   8500.00 |
+| Dumbbell 30KG       |  12000.00 |
+| Power Rack Standard |  85000.00 |
+| Power Rack XL       | 110000.00 |
++---------------------+-----------+
+5 rows in set (0.00 sec)
+
+mysql> -- Q5. Find customers whose names start with the letter 'A'.
+mysql> SELECT name, email
+    -> FROM users
+    -> WHERE name LIKE 'A%';
++-------------+------------------+
+| name        | email            |
++-------------+------------------+
+| Arjun Mehta | arjun@gmail.com  |
+| Ananya Rao  | ananya@gmail.com |
++-------------+------------------+
+2 rows in set (0.00 sec)
+
+mysql> -- Q6. Find equipment variants costing between ₹50,000 and ₹2,00,000.
+mysql> SELECT variant_name, price
+    -> FROM product_variant
+    -> WHERE price BETWEEN 50000 AND 200000;
++---------------------+-----------+
+| variant_name        | price     |
++---------------------+-----------+
+| Technogym Bike Pro  | 175000.00 |
+| Power Rack Standard |  85000.00 |
+| Power Rack XL       | 110000.00 |
++---------------------+-----------+
+3 rows in set (0.00 sec)
+
+mysql> -- Q7. Find products having prices of ₹7,500, ₹79,000, or ₹99,900.
+mysql> SELECT variant_name, price
+    -> FROM product_variant
+    -> WHERE price IN (7500, 79000, 99900);
+Empty set (0.00 sec)
+
+mysql> -- Q8. Find all products for which a discounted price is available.
+mysql> SELECT variant_name, price, discount_price
+    -> FROM product_variant
+    -> WHERE discount_price IS NOT NULL;
++---------------------+-----------+----------------+
+| variant_name        | price     | discount_price |
++---------------------+-----------+----------------+
+| X1 Standard         | 450000.00 |      425000.00 |
+| X1 Compact          | 420000.00 |      399000.00 |
+| P500 Commercial     | 280000.00 |      259000.00 |
+| Technogym Bike Pro  | 175000.00 |      159000.00 |
+| E200 Elliptical     | 220000.00 |      205000.00 |
+| Leg Press 500       | 250000.00 |      235000.00 |
+| Dumbbell 20KG       |   8500.00 |        7500.00 |
+| Dumbbell 30KG       |  12000.00 |       10500.00 |
+| Power Rack Standard |  85000.00 |       79000.00 |
+| Power Rack XL       | 110000.00 |       99900.00 |
+| Yoga Mat 8MM        |   2500.00 |        1999.00 |
++---------------------+-----------+----------------+
+11 rows in set (0.00 sec)
+
+mysql> -- Q9. Display all orders placed in March 2026.
+mysql> SELECT *
+    -> FROM orders
+    -> WHERE order_date >= '2026-03-01'
+    ->   AND order_date < '2026-04-01';
++----------+---------+----------+------------+---------------------+--------------+--------------+
+| order_id | user_id | store_id | order_type | order_date          | order_status | total_amount |
++----------+---------+----------+------------+---------------------+--------------+--------------+
+|        1 |       1 |     NULL | Online     | 2026-03-20 12:00:00 | Delivered    |    399000.00 |
+|        2 |       2 |        2 | Offline    | 2026-03-21 18:00:00 | Completed    |    159000.00 |
+|        3 |       3 |     NULL | Online     | 2026-03-22 14:00:00 | Processing   |    425000.00 |
+|        4 |       5 |        3 | Offline    | 2026-03-23 13:00:00 | Completed    |      7500.00 |
+|        5 |       7 |        4 | Offline    | 2026-03-24 16:00:00 | Completed    |     79000.00 |
++----------+---------+----------+------------+---------------------+--------------+--------------+
+5 rows in set (0.00 sec)
+
+mysql> -- Q10. Display the customer name and email as one combined field.
+mysql> SELECT
+    ->     CONCAT(name, ' - ', email) AS customer_information
+    -> FROM users;
++---------------------------------+
+| customer_information            |
++---------------------------------+
+| Rahul Sharma - rahul@gmail.com  |
+| Priya Patel - priya@gmail.com   |
+| Arjun Mehta - arjun@gmail.com   |
+| Sneha Reddy - sneha@gmail.com   |
+| Vikram Singh - vikram@gmail.com |
+| Ananya Rao - ananya@gmail.com   |
+| Karan Shah - karan@gmail.com    |
+| Neha Joshi - neha@gmail.com     |
++---------------------------------+
+8 rows in set (0.01 sec)
+
+
+
+===========================================================================================================================================================================================================================================
+
+
+
+mysql>======================
+mysql> -- MEDIUM QUERIES --
+mysql>======================
+mysql> -- Q1. Display each equipment along with its brand name.
+mysql> SELECT
+    ->     e.equipment_name,
+    ->     b.brand_name
+    -> FROM equipment e
+    -> INNER JOIN brand b
+    ->     ON e.brand_id = b.brand_id;
++--------------------------+--------------+
+| equipment_name           | brand_name   |
++--------------------------+--------------+
+| Commercial Treadmill X1  | Life Fitness |
+| Technogym Exercise Bike  | Technogym    |
+| Leg Press Machine        | Technogym    |
+| Nautilus Elliptical E200 | Nautilus     |
+| PowerRun Treadmill P500  | PowerMax     |
+| Adjustable Dumbbell Set  | Decathlon    |
+| Premium Yoga Mat         | Decathlon    |
+| Commercial Power Rack    | FitLine      |
++--------------------------+--------------+
+8 rows in set (0.00 sec)
+
+mysql> -- Q2. Display each equipment along with its category and subcategory.
+mysql> SELECT
+    ->     e.equipment_name,
+    ->     ec.name AS category,
+    ->     es.name AS subcategory
+    -> FROM equipment e
+    -> JOIN equipment_subcategory es
+    ->     ON e.subcategory_id = es.subcategory_id
+    -> JOIN equipment_category ec
+    ->     ON es.category_id = ec.category_id;
++--------------------------+---------------------+---------------------+
+| equipment_name           | category            | subcategory         |
++--------------------------+---------------------+---------------------+
+| Commercial Treadmill X1  | Cardio Equipment    | Treadmills          |
+| PowerRun Treadmill P500  | Cardio Equipment    | Treadmills          |
+| Technogym Exercise Bike  | Cardio Equipment    | Exercise Bikes      |
+| Nautilus Elliptical E200 | Cardio Equipment    | Elliptical Trainers |
+| Leg Press Machine        | Strength Equipment  | Weight Machines     |
+| Adjustable Dumbbell Set  | Free Weights        | Dumbbells           |
+| Commercial Power Rack    | Functional Training | Power Racks         |
+| Premium Yoga Mat         | Yoga & Flexibility  | Yoga Mats           |
++--------------------------+---------------------+---------------------+
+8 rows in set (0.00 sec)
+
+mysql> -- Q3. Display each equipment variant along with its dimensions.
+mysql> SELECT
+    ->     e.equipment_name,
+    ->     pv.variant_name,
+    ->     pv.length_cm,
+    ->     pv.width_cm,
+    ->     pv.height_cm
+    -> FROM equipment e
+    -> JOIN product_variant pv
+    ->     ON e.equipment_id = pv.equipment_id;
++--------------------------+---------------------+-----------+----------+-----------+
+| equipment_name           | variant_name        | length_cm | width_cm | height_cm |
++--------------------------+---------------------+-----------+----------+-----------+
+| Commercial Treadmill X1  | X1 Standard         |    220.00 |    95.00 |    155.00 |
+| Commercial Treadmill X1  | X1 Compact          |    200.00 |    85.00 |    150.00 |
+| PowerRun Treadmill P500  | P500 Commercial     |    215.00 |    90.00 |    150.00 |
+| Technogym Exercise Bike  | Technogym Bike Pro  |    120.00 |    60.00 |    140.00 |
+| Nautilus Elliptical E200 | E200 Elliptical     |    210.00 |    75.00 |    165.00 |
+| Leg Press Machine        | Leg Press 500       |    220.00 |   120.00 |    150.00 |
+| Adjustable Dumbbell Set  | Dumbbell 20KG       |     40.00 |    20.00 |     20.00 |
+| Adjustable Dumbbell Set  | Dumbbell 30KG       |     45.00 |    22.00 |     22.00 |
+| Commercial Power Rack    | Power Rack Standard |    150.00 |   140.00 |    230.00 |
+| Commercial Power Rack    | Power Rack XL       |    180.00 |   160.00 |    240.00 |
+| Premium Yoga Mat         | Yoga Mat 8MM        |    183.00 |    61.00 |      0.80 |
++--------------------------+---------------------+-----------+----------+-----------+
+11 rows in set (0.00 sec)
+
+mysql> -- Q4. Find the average price of all equipment variants.
+mysql> SELECT
+    ->     AVG(price) AS average_price
+    -> FROM product_variant;
++---------------+
+| average_price |
++---------------+
+| 183000.000000 |
++---------------+
+1 row in set (0.00 sec)
+
+mysql> -- Q5. Count the number of equipment available in each category.
+mysql> SELECT
+    ->     ec.name AS category,
+    ->     COUNT(e.equipment_id) AS total_equipment
+    -> FROM equipment_category ec
+    -> JOIN equipment_subcategory es
+    ->     ON ec.category_id = es.category_id
+    -> JOIN equipment e
+    ->     ON es.subcategory_id = e.subcategory_id
+    -> GROUP BY ec.category_id, ec.name;
++---------------------+-----------------+
+| category            | total_equipment |
++---------------------+-----------------+
+| Cardio Equipment    |               4 |
+| Strength Equipment  |               1 |
+| Free Weights        |               1 |
+| Functional Training |               1 |
+| Yoga & Flexibility  |               1 |
++---------------------+-----------------+
+5 rows in set (0.01 sec)
+
+mysql> -- Q6. Display only categories having more than one equipment.
+mysql> SELECT
+    ->     ec.name AS category,
+    ->     COUNT(e.equipment_id) AS equipment_count
+    -> FROM equipment_category ec
+    -> JOIN equipment_subcategory es
+    ->     ON ec.category_id = es.category_id
+    -> JOIN equipment e
+    ->     ON es.subcategory_id = e.subcategory_id
+    -> GROUP BY ec.category_id, ec.name
+    -> HAVING COUNT(e.equipment_id) > 1;
++------------------+-----------------+
+| category         | equipment_count |
++------------------+-----------------+
+| Cardio Equipment |               4 |
++------------------+-----------------+
+1 row in set (0.00 sec)
+
+mysql> -- Q7. Find the total sales generated by the system.
+mysql> SELECT
+    ->     SUM(total_amount) AS total_sales
+    -> FROM orders;
++-------------+
+| total_sales |
++-------------+
+|  1069500.00 |
++-------------+
+1 row in set (0.00 sec)
+
+mysql> -- Q8. Find the total number of online and offline orders and their sales.
+mysql> SELECT
+    ->     order_type,
+    ->     COUNT(order_id) AS total_orders,
+    ->     SUM(total_amount) AS total_sales
+    -> FROM orders
+    -> GROUP BY order_type;
++------------+--------------+-------------+
+| order_type | total_orders | total_sales |
++------------+--------------+-------------+
+| Online     |            2 |   824000.00 |
+| Offline    |            3 |   245500.00 |
++------------+--------------+-------------+
+2 rows in set (0.00 sec)
+
+mysql> -- Q9. Display the customers who have placed orders.
+mysql> SELECT
+    ->     u.name,
+    ->     o.order_id,
+    ->     o.order_type,
+    ->     o.total_amount
+    -> FROM users u
+    -> JOIN orders o
+    ->     ON u.user_id = o.user_id;
++--------------+----------+------------+--------------+
+| name         | order_id | order_type | total_amount |
++--------------+----------+------------+--------------+
+| Rahul Sharma |        1 | Online     |    399000.00 |
+| Priya Patel  |        2 | Offline    |    159000.00 |
+| Arjun Mehta  |        3 | Online     |    425000.00 |
+| Vikram Singh |        4 | Offline    |      7500.00 |
+| Karan Shah   |        5 | Offline    |     79000.00 |
++--------------+----------+------------+--------------+
+5 rows in set (0.00 sec)
+
+mysql> -- Q10. Display all users, including users who have never placed an order.
+mysql> SELECT
+    ->     u.name,
+    ->     o.order_id,
+    ->     o.total_amount
+    -> FROM users u
+    -> LEFT JOIN orders o
+    ->     ON u.user_id = o.user_id;
++--------------+----------+--------------+
+| name         | order_id | total_amount |
++--------------+----------+--------------+
+| Rahul Sharma |        1 |    399000.00 |
+| Priya Patel  |        2 |    159000.00 |
+| Arjun Mehta  |        3 |    425000.00 |
+| Sneha Reddy  |     NULL |         NULL |
+| Vikram Singh |        4 |      7500.00 |
+| Ananya Rao   |     NULL |         NULL |
+| Karan Shah   |        5 |     79000.00 |
+| Neha Joshi   |     NULL |         NULL |
++--------------+----------+--------------+
+8 rows in set (0.00 sec)
+
+
+
+===========================================================================================================================================================================================================================================
+
+
+
+mysql>===============================
+mysql> -- LARGE / ADVANCED QUERIES --
+mysql>================================
+mysql> -- Q1. Display a complete equipment catalogue containing equipment, brand, category, subcategory, variant, price, and dimensions.
+mysql> SELECT
+    ->     e.equipment_name,
+    ->     b.brand_name,
+    ->     ec.name AS category,
+    ->     es.name AS subcategory,
+    ->     pv.variant_name,
+    ->     pv.price,
+    ->     pv.length_cm,
+    ->     pv.width_cm,
+    ->     pv.height_cm
+    -> FROM equipment e
+    -> JOIN brand b
+    ->     ON e.brand_id = b.brand_id
+    -> JOIN equipment_subcategory es
+    ->     ON e.subcategory_id = es.subcategory_id
+    -> JOIN equipment_category ec
+    ->     ON es.category_id = ec.category_id
+    -> JOIN product_variant pv
+    ->     ON e.equipment_id = pv.equipment_id
+    -> ORDER BY ec.name, e.equipment_name;
++--------------------------+--------------+---------------------+---------------------+---------------------+-----------+-----------+----------+-----------+
+| equipment_name           | brand_name   | category            | subcategory         | variant_name        | price     | length_cm | width_cm | height_cm |
++--------------------------+--------------+---------------------+---------------------+---------------------+-----------+-----------+----------+-----------+
+| Commercial Treadmill X1  | Life Fitness | Cardio Equipment    | Treadmills          | X1 Standard         | 450000.00 |    220.00 |    95.00 |    155.00 |
+| Commercial Treadmill X1  | Life Fitness | Cardio Equipment    | Treadmills          | X1 Compact          | 420000.00 |    200.00 |    85.00 |    150.00 |
+| Nautilus Elliptical E200 | Nautilus     | Cardio Equipment    | Elliptical Trainers | E200 Elliptical     | 220000.00 |    210.00 |    75.00 |    165.00 |
+| PowerRun Treadmill P500  | PowerMax     | Cardio Equipment    | Treadmills          | P500 Commercial     | 280000.00 |    215.00 |    90.00 |    150.00 |
+| Technogym Exercise Bike  | Technogym    | Cardio Equipment    | Exercise Bikes      | Technogym Bike Pro  | 175000.00 |    120.00 |    60.00 |    140.00 |
+| Adjustable Dumbbell Set  | Decathlon    | Free Weights        | Dumbbells           | Dumbbell 20KG       |   8500.00 |     40.00 |    20.00 |     20.00 |
+| Adjustable Dumbbell Set  | Decathlon    | Free Weights        | Dumbbells           | Dumbbell 30KG       |  12000.00 |     45.00 |    22.00 |     22.00 |
+| Commercial Power Rack    | FitLine      | Functional Training | Power Racks         | Power Rack Standard |  85000.00 |    150.00 |   140.00 |    230.00 |
+| Commercial Power Rack    | FitLine      | Functional Training | Power Racks         | Power Rack XL       | 110000.00 |    180.00 |   160.00 |    240.00 |
+| Leg Press Machine        | Technogym    | Strength Equipment  | Weight Machines     | Leg Press 500       | 250000.00 |    220.00 |   120.00 |    150.00 |
+| Premium Yoga Mat         | Decathlon    | Yoga & Flexibility  | Yoga Mats           | Yoga Mat 8MM        |   2500.00 |    183.00 |    61.00 |      0.80 |
++--------------------------+--------------+---------------------+---------------------+---------------------+-----------+-----------+----------+-----------+
+11 rows in set (0.00 sec)
+
+mysql> -- Q2. Find equipment that fits within a gym space of 220 × 100 × 160 cm and costs less than ₹4,50,000.
+mysql> SELECT
+    ->     e.equipment_name,
+    ->     pv.variant_name,
+    ->     pv.price,
+    ->     pv.length_cm,
+    ->     pv.width_cm,
+    ->     pv.height_cm
+    -> FROM equipment e
+    -> JOIN product_variant pv
+    ->     ON e.equipment_id = pv.equipment_id
+    -> WHERE pv.length_cm <= 220
+    ->   AND pv.width_cm <= 100
+    ->   AND pv.height_cm <= 160
+    ->   AND pv.price <= 450000
+    -> ORDER BY pv.price;
++-------------------------+--------------------+-----------+-----------+----------+-----------+
+| equipment_name          | variant_name       | price     | length_cm | width_cm | height_cm |
++-------------------------+--------------------+-----------+-----------+----------+-----------+
+| Premium Yoga Mat        | Yoga Mat 8MM       |   2500.00 |    183.00 |    61.00 |      0.80 |
+| Adjustable Dumbbell Set | Dumbbell 20KG      |   8500.00 |     40.00 |    20.00 |     20.00 |
+| Adjustable Dumbbell Set | Dumbbell 30KG      |  12000.00 |     45.00 |    22.00 |     22.00 |
+| Technogym Exercise Bike | Technogym Bike Pro | 175000.00 |    120.00 |    60.00 |    140.00 |
+| PowerRun Treadmill P500 | P500 Commercial    | 280000.00 |    215.00 |    90.00 |    150.00 |
+| Commercial Treadmill X1 | X1 Compact         | 420000.00 |    200.00 |    85.00 |    150.00 |
+| Commercial Treadmill X1 | X1 Standard        | 450000.00 |    220.00 |    95.00 |    155.00 |
++-------------------------+--------------------+-----------+-----------+----------+-----------+
+7 rows in set (0.01 sec)
+
+mysql> -- Q3. Find equipment matching the custom requirements submitted by gym owners.
+mysql> SELECT
+    ->     cer.request_id,
+    ->     cer.required_name,
+    ->     e.equipment_name,
+    ->     pv.variant_name,
+    ->     pv.price,
+    ->     pv.length_cm,
+    ->     pv.width_cm,
+    ->     pv.height_cm
+    -> FROM custom_equipment_request cer
+    -> JOIN product_variant pv
+    ->     ON pv.length_cm <= cer.length_cm
+    ->    AND pv.width_cm <= cer.width_cm
+    ->    AND pv.height_cm <= cer.height_cm
+    ->    AND pv.price <= cer.max_budget
+    -> JOIN equipment e
+    ->     ON pv.equipment_id = e.equipment_id
+    -> ORDER BY cer.request_id, pv.price;
++------------+----------------------+-------------------------+---------------------+-----------+-----------+----------+-----------+
+| request_id | required_name        | equipment_name          | variant_name        | price     | length_cm | width_cm | height_cm |
++------------+----------------------+-------------------------+---------------------+-----------+-----------+----------+-----------+
+|          1 | Commercial Treadmill | Premium Yoga Mat        | Yoga Mat 8MM        |   2500.00 |    183.00 |    61.00 |      0.80 |
+|          1 | Commercial Treadmill | Adjustable Dumbbell Set | Dumbbell 20KG       |   8500.00 |     40.00 |    20.00 |     20.00 |
+|          1 | Commercial Treadmill | Adjustable Dumbbell Set | Dumbbell 30KG       |  12000.00 |     45.00 |    22.00 |     22.00 |
+|          1 | Commercial Treadmill | Technogym Exercise Bike | Technogym Bike Pro  | 175000.00 |    120.00 |    60.00 |    140.00 |
+|          1 | Commercial Treadmill | PowerRun Treadmill P500 | P500 Commercial     | 280000.00 |    215.00 |    90.00 |    150.00 |
+|          1 | Commercial Treadmill | Commercial Treadmill X1 | X1 Compact          | 420000.00 |    200.00 |    85.00 |    150.00 |
+|          1 | Commercial Treadmill | Commercial Treadmill X1 | X1 Standard         | 450000.00 |    220.00 |    95.00 |    155.00 |
+|          2 | Leg Press Machine    | Premium Yoga Mat        | Yoga Mat 8MM        |   2500.00 |    183.00 |    61.00 |      0.80 |
+|          2 | Leg Press Machine    | Adjustable Dumbbell Set | Dumbbell 20KG       |   8500.00 |     40.00 |    20.00 |     20.00 |
+|          2 | Leg Press Machine    | Adjustable Dumbbell Set | Dumbbell 30KG       |  12000.00 |     45.00 |    22.00 |     22.00 |
+|          2 | Leg Press Machine    | Technogym Exercise Bike | Technogym Bike Pro  | 175000.00 |    120.00 |    60.00 |    140.00 |
+|          2 | Leg Press Machine    | Leg Press Machine       | Leg Press 500       | 250000.00 |    220.00 |   120.00 |    150.00 |
+|          2 | Leg Press Machine    | PowerRun Treadmill P500 | P500 Commercial     | 280000.00 |    215.00 |    90.00 |    150.00 |
+|          3 | Power Rack           | Adjustable Dumbbell Set | Dumbbell 20KG       |   8500.00 |     40.00 |    20.00 |     20.00 |
+|          3 | Power Rack           | Adjustable Dumbbell Set | Dumbbell 30KG       |  12000.00 |     45.00 |    22.00 |     22.00 |
+|          3 | Power Rack           | Commercial Power Rack   | Power Rack Standard |  85000.00 |    150.00 |   140.00 |    230.00 |
+|          3 | Power Rack           | Commercial Power Rack   | Power Rack XL       | 110000.00 |    180.00 |   160.00 |    240.00 |
++------------+----------------------+-------------------------+---------------------+-----------+-----------+----------+-----------+
+17 rows in set (0.00 sec)
+
+mysql> -- Q4. Display all equipment that customers can physically try in the stores.
+mysql> SELECT
+    ->     s.store_name,
+    ->     wz.zone_name,
+    ->     e.equipment_name,
+    ->     pv.variant_name,
+    ->     ea.quantity_available
+    -> FROM equipment_available ea
+    -> JOIN workout_zone wz
+    ->     ON ea.zone_id = wz.zone_id
+    -> JOIN store s
+    ->     ON wz.store_id = s.store_id
+    -> JOIN product_variant pv
+    ->     ON ea.variant_id = pv.variant_id
+    -> JOIN equipment e
+    ->     ON pv.equipment_id = e.equipment_id
+    -> WHERE ea.quantity_available > 0
+    -> ORDER BY s.store_name;
++-----------------------+-----------------+--------------------------+---------------------+--------------------+
+| store_name            | zone_name       | equipment_name           | variant_name        | quantity_available |
++-----------------------+-----------------+--------------------------+---------------------+--------------------+
+| Fitness Hub Bangalore | Cardio Zone     | Commercial Treadmill X1  | X1 Compact          |                  2 |
+| Fitness Hub Bangalore | Cardio Zone     | Nautilus Elliptical E200 | E200 Elliptical     |                  1 |
+| Fitness Hub Bangalore | Functional Zone | Commercial Power Rack    | Power Rack Standard |                  2 |
+| Fitness Hub Bangalore | Functional Zone | Commercial Power Rack    | Power Rack XL       |                  1 |
+| Fitness Hub Delhi     | Cardio Zone     | Commercial Treadmill X1  | X1 Standard         |                  1 |
+| Fitness Hub Mumbai    | Cardio Zone     | Commercial Treadmill X1  | X1 Standard         |                  2 |
+| Fitness Hub Mumbai    | Cardio Zone     | PowerRun Treadmill P500  | P500 Commercial     |                  3 |
+| Fitness Hub Mumbai    | Cardio Zone     | Technogym Exercise Bike  | Technogym Bike Pro  |                  2 |
+| Fitness Hub Mumbai    | Strength Zone   | Leg Press Machine        | Leg Press 500       |                  1 |
+| Fitness Hub Mumbai    | Strength Zone   | Commercial Power Rack    | Power Rack Standard |                  2 |
+| Fitness Hub Pune      | Strength Zone   | Adjustable Dumbbell Set  | Dumbbell 20KG       |                  5 |
+| Fitness Hub Pune      | Strength Zone   | Adjustable Dumbbell Set  | Dumbbell 30KG       |                  3 |
++-----------------------+-----------------+--------------------------+---------------------+--------------------+
+12 rows in set (0.00 sec)
+
+mysql> -- Q5. Find customers who tried equipment before purchasing it.
+mysql> SELECT DISTINCT
+    ->     u.name,
+    ->     e.equipment_name,
+    ->     o.order_id,
+    ->     o.order_date
+    -> FROM users u
+    -> JOIN workout_session ws
+    ->     ON u.user_id = ws.user_id
+    -> JOIN workout_zone wz
+    ->     ON ws.zone_id = wz.zone_id
+    -> JOIN equipment_available ea
+    ->     ON wz.zone_id = ea.zone_id
+    -> JOIN product_variant pv
+    ->     ON ea.variant_id = pv.variant_id
+    -> JOIN equipment e
+    ->     ON pv.equipment_id = e.equipment_id
+    -> JOIN order_item oi
+    ->     ON pv.variant_id = oi.variant_id
+    -> JOIN orders o
+    ->     ON oi.order_id = o.order_id
+    ->    AND o.user_id = u.user_id;
++------------+-----------------------+----------+---------------------+
+| name       | equipment_name        | order_id | order_date          |
++------------+-----------------------+----------+---------------------+
+| Karan Shah | Commercial Power Rack |        5 | 2026-03-24 16:00:00 |
++------------+-----------------------+----------+---------------------+
+1 row in set (0.01 sec)
+
+mysql> -- Q6. Find equipment having an average customer rating of at least 4 stars.
+mysql> SELECT
+    ->     e.equipment_name,
+    ->     pv.variant_name,
+    ->     ROUND(AVG(r.rating), 2) AS average_rating,
+    ->     COUNT(r.review_id) AS total_reviews
+    -> FROM review r
+    -> JOIN product_variant pv
+    ->     ON r.variant_id = pv.variant_id
+    -> JOIN equipment e
+    ->     ON pv.equipment_id = e.equipment_id
+    -> GROUP BY
+    ->     e.equipment_id,
+    ->     e.equipment_name,
+    ->     pv.variant_id,
+    ->     pv.variant_name
+    -> HAVING AVG(r.rating) >= 4
+    -> ORDER BY average_rating DESC;
++-------------------------+---------------------+----------------+---------------+
+| equipment_name          | variant_name        | average_rating | total_reviews |
++-------------------------+---------------------+----------------+---------------+
+| Commercial Treadmill X1 | X1 Compact          |           5.00 |             1 |
+| Adjustable Dumbbell Set | Dumbbell 20KG       |           5.00 |             1 |
+| Commercial Power Rack   | Power Rack Standard |           5.00 |             1 |
+| Commercial Treadmill X1 | X1 Standard         |           5.00 |             1 |
+| Technogym Exercise Bike | Technogym Bike Pro  |           4.00 |             1 |
++-------------------------+---------------------+----------------+---------------+
+5 rows in set (0.01 sec)
+
+mysql> -- Q7. Display the most expensive product in each equipment category.
+mysql> SELECT
+    ->     ec.name AS category,
+    ->     e.equipment_name,
+    ->     pv.variant_name,
+    ->     pv.price
+    -> FROM product_variant pv
+    -> JOIN equipment e
+    ->     ON pv.equipment_id = e.equipment_id
+    -> JOIN equipment_subcategory es
+    ->     ON e.subcategory_id = es.subcategory_id
+    -> JOIN equipment_category ec
+    ->     ON es.category_id = ec.category_id
+    -> WHERE pv.price = (
+    ->     SELECT MAX(pv2.price)
+    ->     FROM product_variant pv2
+    ->     JOIN equipment e2
+    ->         ON pv2.equipment_id = e2.equipment_id
+    ->     JOIN equipment_subcategory es2
+    ->         ON e2.subcategory_id = es2.subcategory_id
+    ->     WHERE es2.category_id = ec.category_id
+    -> );
++---------------------+-------------------------+---------------+-----------+
+| category            | equipment_name          | variant_name  | price     |
++---------------------+-------------------------+---------------+-----------+
+| Cardio Equipment    | Commercial Treadmill X1 | X1 Standard   | 450000.00 |
+| Strength Equipment  | Leg Press Machine       | Leg Press 500 | 250000.00 |
+| Free Weights        | Adjustable Dumbbell Set | Dumbbell 30KG |  12000.00 |
+| Functional Training | Commercial Power Rack   | Power Rack XL | 110000.00 |
+| Yoga & Flexibility  | Premium Yoga Mat        | Yoga Mat 8MM  |   2500.00 |
++---------------------+-------------------------+---------------+-----------+
+5 rows in set (0.01 sec)
+
+mysql> -- Q8. Display the ranking of equipment according to price within each category.
+mysql> SELECT
+    ->     ec.name AS category,
+    ->     e.equipment_name,
+    ->     pv.variant_name,
+    ->     pv.price,
+    ->     RANK() OVER (
+    ->         PARTITION BY ec.category_id
+    ->         ORDER BY pv.price DESC
+    ->     ) AS category_price_rank
+    -> FROM product_variant pv
+    -> JOIN equipment e
+    ->     ON pv.equipment_id = e.equipment_id
+    -> JOIN equipment_subcategory es
+    ->     ON e.subcategory_id = es.subcategory_id
+    -> JOIN equipment_category ec
+    ->     ON es.category_id = ec.category_id;
++---------------------+--------------------------+---------------------+-----------+---------------------+
+| category            | equipment_name           | variant_name        | price     | category_price_rank |
++---------------------+--------------------------+---------------------+-----------+---------------------+
+| Cardio Equipment    | Commercial Treadmill X1  | X1 Standard         | 450000.00 |                   1 |
+| Cardio Equipment    | Commercial Treadmill X1  | X1 Compact          | 420000.00 |                   2 |
+| Cardio Equipment    | PowerRun Treadmill P500  | P500 Commercial     | 280000.00 |                   3 |
+| Cardio Equipment    | Nautilus Elliptical E200 | E200 Elliptical     | 220000.00 |                   4 |
+| Cardio Equipment    | Technogym Exercise Bike  | Technogym Bike Pro  | 175000.00 |                   5 |
+| Strength Equipment  | Leg Press Machine        | Leg Press 500       | 250000.00 |                   1 |
+| Free Weights        | Adjustable Dumbbell Set  | Dumbbell 30KG       |  12000.00 |                   1 |
+| Free Weights        | Adjustable Dumbbell Set  | Dumbbell 20KG       |   8500.00 |                   2 |
+| Functional Training | Commercial Power Rack    | Power Rack XL       | 110000.00 |                   1 |
+| Functional Training | Commercial Power Rack    | Power Rack Standard |  85000.00 |                   2 |
+| Yoga & Flexibility  | Premium Yoga Mat         | Yoga Mat 8MM        |   2500.00 |                   1 |
++---------------------+--------------------------+---------------------+-----------+---------------------+
+11 rows in set (0.01 sec)
+
+mysql> -- Q9. Compare total online sales and total offline sales.
+mysql> SELECT
+    ->     SUM(
+    ->         CASE
+    ->             WHEN order_type = 'Online'
+    ->             THEN total_amount
+    ->             ELSE 0
+    ->         END
+    ->     ) AS online_sales,
+    ->
+    ->     SUM(
+    ->         CASE
+    ->             WHEN order_type = 'Offline'
+    ->             THEN total_amount
+    ->             ELSE 0
+    ->         END
+    ->     ) AS offline_sales,
+    ->
+    ->     SUM(total_amount) AS total_sales
+    -> FROM orders;
++--------------+---------------+-------------+
+| online_sales | offline_sales | total_sales |
++--------------+---------------+-------------+
+|    824000.00 |     245500.00 |  1069500.00 |
++--------------+---------------+-------------+
+1 row in set (0.00 sec)
+
+mysql> -- Q10. Generate a monthly sales report.
+mysql> SELECT
+    ->     YEAR(order_date) AS sales_year,
+    ->     MONTH(order_date) AS sales_month,
+    ->     COUNT(order_id) AS total_orders,
+    ->     SUM(total_amount) AS total_sales
+    -> FROM orders
+    -> GROUP BY
+    ->     YEAR(order_date),
+    ->     MONTH(order_date)
+    -> ORDER BY
+    ->     sales_year,
+    ->     sales_month;
++------------+-------------+--------------+-------------+
+| sales_year | sales_month | total_orders | total_sales |
++------------+-------------+--------------+-------------+
+|       2026 |           3 |            5 |  1069500.00 |
++------------+-------------+--------------+-------------+
+1 row in set (0.00 sec)
+
+
+
+===========================================================================================================================================================================================================================================
+
+
+
+mysql>==============================
+mysql> -- ⭐ FINAL PROJECT QUERY --
+mysql>==============================
+mysql> -- Q.Find the best gym equipment for a new gym based on category, dimensions, budget, stock availability, and customer rating.
+mysql> SELECT
+    ->     e.equipment_name,
+    ->     b.brand_name,
+    ->     ec.name AS category,
+    ->     pv.variant_name,
+    ->     pv.price,
+    ->     pv.length_cm,
+    ->     pv.width_cm,
+    ->     pv.height_cm,
+    ->     SUM(i.stock_quantity) AS total_stock,
+    ->     ROUND(AVG(r.rating), 2) AS average_rating
+    -> FROM equipment e
+    -> JOIN brand b
+    ->     ON e.brand_id = b.brand_id
+    -> JOIN equipment_subcategory es
+    ->     ON e.subcategory_id = es.subcategory_id
+    -> JOIN equipment_category ec
+    ->     ON es.category_id = ec.category_id
+    -> JOIN product_variant pv
+    ->     ON e.equipment_id = pv.equipment_id
+    -> JOIN inventory i
+    ->     ON pv.variant_id = i.variant_id
+    -> LEFT JOIN review r
+    ->     ON pv.variant_id = r.variant_id
+    -> WHERE ec.name = 'Cardio Equipment'
+    ->   AND pv.length_cm <= 220
+    ->   AND pv.width_cm <= 100
+    ->   AND pv.height_cm <= 160
+    ->   AND pv.price <= 450000
+    -> GROUP BY
+    ->     e.equipment_id,
+    ->     e.equipment_name,
+    ->     b.brand_name,
+    ->     ec.name,
+    ->     pv.variant_id,
+    ->     pv.variant_name,
+    ->     pv.price,
+    ->     pv.length_cm,
+    ->     pv.width_cm,
+    ->     pv.height_cm
+    -> HAVING SUM(i.stock_quantity) > 0
+    -> ORDER BY
+    ->     average_rating DESC,
+    ->     pv.price ASC;
++-------------------------+--------------+------------------+--------------------+-----------+-----------+----------+-----------+-------------+----------------+
+| equipment_name          | brand_name   | category         | variant_name       | price     | length_cm | width_cm | height_cm | total_stock | average_rating |
++-------------------------+--------------+------------------+--------------------+-----------+-----------+----------+-----------+-------------+----------------+
+| Commercial Treadmill X1 | Life Fitness | Cardio Equipment | X1 Compact         | 420000.00 |    200.00 |    85.00 |    150.00 |           8 |           5.00 |
+| Commercial Treadmill X1 | Life Fitness | Cardio Equipment | X1 Standard        | 450000.00 |    220.00 |    95.00 |    155.00 |           8 |           5.00 |
+| Technogym Exercise Bike | Technogym    | Cardio Equipment | Technogym Bike Pro | 175000.00 |    120.00 |    60.00 |    140.00 |           4 |           4.00 |
+| PowerRun Treadmill P500 | PowerMax     | Cardio Equipment | P500 Commercial    | 280000.00 |    215.00 |    90.00 |    150.00 |           6 |           NULL |
++-------------------------+--------------+------------------+--------------------+-----------+-----------+----------+-----------+-------------+----------------+
+4 rows in set (0.00 sec)
+
+
